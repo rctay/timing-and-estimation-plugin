@@ -1,0 +1,25 @@
+#messages{ 
+}
+.message{ 
+  font-weight:bold;
+  color:#283;
+ }
+.minorsection{ 
+  padding:5px;
+  border:1px solid #eee; 
+ }
+.minorsectionleft{ 
+  padding:5px;
+  border-width:1px 0px 1px 1px;
+  border-style: solid;
+  border-color: #eee; 
+ }
+.minorsectionright{ 
+  padding:5px;
+  border-width:1px 1px 1px 0px;
+  border-style: solid;
+  border-color: #eee; 
+ }
+label,.label{ 
+  font-weight:bold;
+} 
