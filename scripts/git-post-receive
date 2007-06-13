@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# An example hook script for the post-receive event
+#
+# This script is run after receive-pack has accepted a pack and the
+# repository has been updated.  It is passed arguments in through stdin
+# in the form
+#  <oldrev> <newrev> <refname>
+# For example:
+#  aa453216d1b3e49e7f6f98441fa56946ddcd6a20 68f7abf4e6f922807889f52bc043ecd31b79f814 refs/heads/master
+#
+# see contrib/hooks/ for an sample, or uncomment the next line (on debian)
+#
+
+
+TRAC_ENV="YOUR TRAC ENV HERE"
+LOG="/dev/null"
+echo "in git post commit: $TRAC_ENV" | cat >>$LOG
+
+while read oval nval ref ; do
+    if expr "$oval" : '0*$' >/dev/null
+    then
+        git-rev-list "$nval"
+    else
+        git-rev-list "$nval" "^$oval"
+    fi | while read com ; do
+	echo "posting a comment to trac" | cat >>$LOG
+	/usr/bin/python /usr/share/trac/contrib/trac-post-commit.py \
+	    -p "$TRAC_ENV" \
+	    -r "$com" \
+	    -u "$(git-rev-list -n 1 $com --pretty=format:%an | sed '1d')" \
+	    -m  "$(git-rev-list -n 1 $com --pretty=medium | sed '1,3d;s:^    ::')"
+	echo "DONE posting a comment to trac" | cat >>$LOG
+    done
+done
+
+echo "Done with trac commit hook: $TRAC_ENV" | cat >>$LOG
+
+git reset --hard 
+echo "resetting repo working copy" | cat >>$LOG
