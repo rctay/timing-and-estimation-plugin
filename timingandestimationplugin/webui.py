@@ -80,7 +80,7 @@ class TimingEstimationAndBillingPage(Component):
                          (url , "Management"))
 
     # IRequestHandler methods
-    def set_request_billing_dates(self, req):
+    def set_request_billing_dates(self, data):
         billing_dates = []
         billing_time_sql = """
         SELECT DISTINCT time as value, str_value as text
@@ -91,7 +91,7 @@ class TimingEstimationAndBillingPage(Component):
             billing_info = {'text':text , 'value':value}
             billing_dates.extend([billing_info])
         #self.log.debug("bill-dates: %s"%billing_dates)
-        req.hdf['billing_info.billdates'] = billing_dates
+        data['billing_info']["billdates"] = billing_dates
 
     def match_request(self, req):
         if re.search('/Billing', req.path_info):
@@ -113,16 +113,18 @@ class TimingEstimationAndBillingPage(Component):
                 self.set_bill_date(req.authname)
                 addMessage("All tickets last bill date updated")
                 
-        req.hdf["billing_info"] = {"messages": messages,
-                                   "href":req.href.Billing(),
-                                   "reports": self.get_copy_report_hash_for_render(req),
-                                   "usermanual_href":req.href.wiki(user_manual_wiki_title),
-                                   "usermanual_title":user_manual_title
-                                   }
-        self.set_request_billing_dates(req)
+        data = {};        
+        data["billing_info"] = {"messages": messages,
+                                "href":req.href.Billing(),
+                                "reports": self.get_copy_report_hash_for_render(req),
+                                "usermanual_href":req.href.wiki(user_manual_wiki_title),
+                                "usermanual_title":user_manual_title
+                                }
+        self.set_request_billing_dates(data)
+
         add_stylesheet(req, "Billing/billingplugin.css")
         add_script(req, "Billing/linkifyer.js")
-        return 'billing.cs', 'text/html'
+        return 'billing.html', data, None
         
         
     # ITemplateProvider
@@ -138,5 +140,6 @@ class TimingEstimationAndBillingPage(Component):
         ClearSilver templates.
         """
         from pkg_resources import resource_filename
-        return [resource_filename(__name__, 'templates')]
+        rtn = [resource_filename(__name__, 'templates')]
+        return rtn
     

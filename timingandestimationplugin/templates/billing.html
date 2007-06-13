@@ -1,0 +1,102 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <xi:include href="macros.html" />
+
+      <head>
+	<title>Time Tracking Management</title>
+    <script type="text/javascript" src="${chrome.htdocs_location}js/wikitoolbar.js"></script>
+    <script type="text/javascript" py:choose="">
+      $(document).ready(function() {
+          $("div.description").find("h1,h2,h3,h4,h5,h6").addAnchor("Link to this section");
+        });
+    </script>
+      </head>
+
+      <body>
+<form method="post" action="${billing_info.href}"  >
+<div id="content" class="billing">
+  <a href="$billing_info.usermanual_href" >$billing_info.usermanual_title</a>
+  <div id="messages" >
+    <py:for each="item in billing_info.messages" >
+      <div class="message" >$item</div>
+    </py:for>
+  </div>
+
+  <table border="0" cellspacing="0" cellpadding="0" class="minorsection">
+    <tr>
+      <td colspan="2" >
+            <div class="minorsection">
+	    <div class="label" >Billing Status:</div>
+              <label for="billable">Billable: </label>
+              <input id="billable" name="billable" type="checkbox" checked="true" /> 
+
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+              <label for="unbillable">Not Billable: </label>
+              <input id="unbillable" name="unbillable" type="checkbox"  /> 
+            </div>
+            <div class="minorsection">
+	    <div class="label" >Status:</div>
+              <label for="new">New: </label>
+              <input id="new" name="new" type="checkbox" checked="true" /> 
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+              <label for="assigned">Assigned: </label>
+              <input id="assigned" name="assigned" type="checkbox" checked="true" /> 
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+              <label for="reopened">Reopened: </label>
+              <input id="reopened" name="reopened" type="checkbox" checked="true" /> 
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+              <label for="closed">Closed: </label>
+              <input id="closed" name="closed" type="checkbox" checked="true" /> 
+            </div>
+
+      </td>
+    </tr><tr class="minorsection">
+      <td class="minorsectionleft" valign="top"><label for="startdate" >Start Date:</label></td>
+      <td class="minorsectionright"><input id="startdate" name="startdate" type="text" /> or:<br />
+          <label for="startbilling" >Choose an old billing date:</label><br />
+          <select id="startbilling" name="startbilling" >
+            <option value="" ></option>
+              <py:for each="item in billing_info.billdates" >
+                <option value="$item.value" >$item.text</option>
+              </py:for>
+          </select>
+      </td>
+    </tr><tr class="minorsection">
+      <td class="minorsectionleft" valign="top"><label for="enddate" >End Date:</label>
+      </td>
+      <td class="minorsectionright">
+          <input id="enddate" name="enddate" type="text" /> or:<br />
+          <label for="endbilling" >Choose an old billing date:</label><br />
+          <select id="endbilling" name="endbilling" >
+            <option value="" ></option>
+              <py:for each="item in billing_info.billdates" >
+                <option value="$item.value" >$item.text</option>
+              </py:for>
+          </select>
+      </td>
+    </tr>
+  </table>
+  <ul id="reportlinks">
+  <py:for each="report_group in billing_info.reports" >
+    <li>$report_group.title
+      <ul>
+        <py:for each="report in report_group.reports">
+          <li><a href="" onmouseover="linkify(this, '$report.href')"  >
+            $report.title
+          </a></li>     
+       </py:for>
+      </ul>
+    </li>
+  </py:for>
+  </ul>
+  <input type="submit" name="setbillingtime" value="Set Billing Time" onclick="return confirm('Are you sure that you want to create a billed date?')" />&nbsp;
+
+</div>
+</form>
+</body>
+</html>
