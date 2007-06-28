@@ -83,7 +83,8 @@ class TimeTrackingSetupParticipant(Component):
             );
             """
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
-        dbhelper.set_plugin_db_version(self.env.get_db_cnx);
+        dbhelper.migrate_up_to_version(self.env.get_db_cnx, dbhelper)
+        dbhelper.set_plugin_db_version(self.env.get_db_cnx)
     
     def reports_need_upgrade(self):
         bit = False
@@ -91,17 +92,23 @@ class TimeTrackingSetupParticipant(Component):
         if not report_version:
             return True
         
-        #make versions hash        
-        _versions = dbhelper.get_result_set(self.env.get_db_cnx(),
-                                           """
-                                           SELECT report as id, version, r.title as title
-                                           FROM report_version
-                                           JOIN report r ON r.Id = report_version.report
-                                           """)
+        #make versions hash
+        try:
+            _versions = dbhelper.get_result_set(self.env.get_db_cnx(),"""
+               SELECT report as id, version, r.title as title
+               FROM report_version
+               JOIN report r ON r.Id = report_version.report
+               WHERE tags LIKE '%T&E%' """)
+        except Exception:
+            return True;
         versions = {}
+
+        if _versions.rows == None:
+            return True
+
         for (id, version, title) in _versions.rows:
             versions[title] = (id, version)
-        
+
             
         for report_group in all_reports:
             rlist = report_group["reports"]
@@ -132,6 +139,7 @@ class TimeTrackingSetupParticipant(Component):
                                            SELECT report as id, version, r.title as title
                                            FROM report_version
                                            JOIN report r ON r.Id = report_version.report
+                                           WHERE tags LIKE '%T&E%'
                                            """)
         versions = {}
         for (id, version, title) in _versions.rows:
@@ -139,18 +147,20 @@ class TimeTrackingSetupParticipant(Component):
             
         biggestId = dbhelper.get_scalar(self.env.get_db_cnx(),
                                         "SELECT ID FROM report ORDER BY ID DESC LIMIT 1")
-        def insert_report_version(id, ver):
+        def insert_report_version(id, ver, tag):
             sql = "DELETE FROM report_version WHERE report = %s;"
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql, id  )
             sql = """
-            INSERT INTO report_version (report, version)
-            VALUES (%s, %s);"""
+            INSERT INTO report_version (report, version, tags)
+            VALUES (%s, %s, %s);"""
             # print "about to insert report_version"
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, id, ver )
+            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, id, ver, tag )
             # print "inserted report_version"
             
         for report_group in all_reports:
             rlist = report_group["reports"]
+            group_title = report_group["title"]
+            tag = "T&E %s" % group_title
             for report in rlist:
                 title = report["title"]
                 new_version = report["version"]
@@ -164,7 +174,7 @@ class TimeTrackingSetupParticipant(Component):
                     biggestId += 1
                     dbhelper.execute_non_query(self.env.get_db_cnx(), sql,
                                                biggestId, title, report["sql"])
-                    insert_report_version(biggestId, new_version)
+                    insert_report_version(biggestId, new_version, tag)
 
                     report["reportnumber"] = biggestId
                     self.reportmap.extend([(biggestId,title)])
@@ -184,7 +194,7 @@ class TimeTrackingSetupParticipant(Component):
                         print "updating report: %s" % title
                         dbhelper.execute_non_query(self.env.get_db_cnx(), sql,
                                                    report["sql"], report_id )
-                        insert_report_version( report_id, new_version )
+                        insert_report_version( report_id, new_version, tag )
                     elif ver < new_version:
                         sql = """
                         UPDATE report
@@ -196,10 +206,11 @@ class TimeTrackingSetupParticipant(Component):
                         
                         sql = """
                         UPDATE report_version
-                        SET version = %s
+                        SET version = %s, tags = %s
+                        
                         WHERE report = %s
                         """
-                        dbhelper.execute_non_query(self.env.get_db_cnx(), sql, new_version, report_id)
+                        dbhelper.execute_non_query(self.env.get_db_cnx(), sql, new_version, tag, report_id)
                         
     def ticket_fields_need_upgrade(self):
         ticket_custom = "ticket-custom"
@@ -303,5 +314,6 @@ class TimeTrackingSetupParticipant(Component):
         print "Done Upgrading"
 
 
+        
 
 

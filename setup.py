@@ -7,7 +7,7 @@ PACKAGE = 'timingandestimationplugin'
 setup(name=PACKAGE,
       description='Plugin to make Trac support time estimation and tracking',
       keywords='trac plugin estimation timetracking',
-      version='0.4.2',
+      version='0.4.3',
       url='http://trac-hacks.org/wiki/TimingAndEstimationPlugin',
       license='http://www.opensource.org/licenses/mit-license.php',
       author='Russ Tyndall at Acceleration.net',
@@ -18,7 +18,7 @@ setup(name=PACKAGE,
       See http://trac-hacks.org/wiki/TimingAndEstimationPlugin for details.
       """,
       packages=[PACKAGE],
-      package_data={PACKAGE : ['templates/*.html', 'htdocs/*']},
+      package_data={PACKAGE : ['templates/*.cs', 'htdocs/*', 'migrate/*.py']},
       entry_points={'trac.plugins': '%s = %s' % (PACKAGE, PACKAGE)})
 
 

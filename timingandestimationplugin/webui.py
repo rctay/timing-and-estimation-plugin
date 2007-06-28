@@ -21,26 +21,25 @@ class TimingEstimationAndBillingPage(Component):
     def get_copy_report_hash_for_render(self, req):
         new_reports = []
         sql = "SELECT id, title FROM report ORDER BY ID"
-        self.reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
+        reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
         
         for report_group in all_reports:
             new_group = { "title" : report_group["title"] }
-            reports_list = report_group["reports"]
+            sql = """
+            SELECT id, title
+            FROM report
+            JOIN report_version on report.id = report_version.report
+            WHERE tags LIKE '%%%s%%'
+            ORDER BY ID""" % report_group["title"]
+            reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
             new_reports_list = []
-            for report in reports_list:
-                title = report["title"]
+            
+            for (r_id, r_name) in reportmap:
                 #find the report id for the name
-                try:
-                    reportid = [r_id
-                                for (r_id, r_name) in self.reportmap
-                                if r_name == title][0]
-                
-                    new_report = {"title" : title,
-                                  "reportnumber" : reportid,
-                                  "href" : "%s/%s" % (req.href.report(), reportid)}
-                    new_reports_list.extend([ new_report ])
-                except:
-                    pass
+                new_report = {"title" : r_name,
+                              "reportnumber" : r_id,
+                              "href" : "%s/%s" % (req.href.report(), r_id)}
+                new_reports_list.extend([ new_report ])
             new_group["reports"] = new_reports_list
             new_reports.extend([new_group])
         return new_reports

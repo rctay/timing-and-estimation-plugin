@@ -1,5 +1,5 @@
 db_version_key = 'TimingAndEstimationPlugin_Db_Version';
-db_version = 3
+db_version = 4
 mylog = None;
 
 
@@ -102,6 +102,23 @@ def get_column_as_list(db, sql, col=0, *params):
 def get_result_set(db, sql, *params):
     """Executes the query and returns a Result Set"""
     return ResultSet(get_all(db, sql, *params))
+
+def migrate_up_to_version( db_fn, helper ):
+    try:
+        start = int(get_plugin_db_version(db_fn()))
+    except Exception:
+        start = 1
+    end = db_version
+    r = range( start+1, end+1)
+    import migrate
+    for i in  r:
+        key = "upgrade"+str(i)
+        try:
+            m = __import__("migrate."+key, globals(), locals(), ["up"])
+            m.up(db_fn, helper)
+        except Exception, e:
+            print "no migration for %s %s %s "% (key, e.args, dir(e))
+        
 
 class ResultSet:
     """ the result of calling getResultSet """

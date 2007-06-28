@@ -8,7 +8,7 @@ billing_reports = [
         {
     "title":"Ticket Work Summary",
     "reportnumber":None,
-    "version":13,
+    "version":14,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, __ticket__,
 newvalue as Work_added, author, time, _ord
@@ -49,7 +49,7 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "title":"Milestone Work Summary",
     "reportnumber":None,
-    "version":12,
+    "version":13,
     "sql":"""
 
 SELECT 
@@ -96,7 +96,7 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "title":"Developer Work Summary",
     "reportnumber":None,
-    "version":12,
+    "version":13,
     "sql":"""
 SELECT author as __group__,__style__, ticket,
   newvalue as Work_added, time as time, _ord
@@ -137,7 +137,7 @@ ticket_hours_reports = [
 {
     "title": "Ticket Hours",
     "reportnumber": None,
-    "version":9,
+    "version":10,
     "sql": """
 SELECT __color__, __style__, ticket, summary, component ,version, severity,
   milestone, status, owner, Estimated_work, Total_work, billable,_ord
@@ -206,7 +206,7 @@ ORDER BY  _ord ASC, ticket
 {
     "title": "Ticket Hours with Description",
     "reportnumber": None,
-    "version":10,
+    "version":11,
     "sql": """
 SELECT __color__,  __style__,  ticket, summary, component ,version, severity,
  milestone, status, owner, Estimated_work, Total_work, billable
@@ -284,7 +284,7 @@ ORDER BY _ord ASC, ticket
     {
     "title":"Ticket Hours Grouped By Component",
     "reportnumber":None,
-    "version":9,
+    "version":10,
     "sql": """
 SELECT __color__, __group__, __style__, ticket, summary, __component__ ,version,
   severity, milestone, status, owner, Estimated_work, total_work, billable,
@@ -364,7 +364,7 @@ ORDER BY __component__, _ord ASC,ticket
     {
     "title":"Ticket Hours Grouped By Component with Description",
     "reportnumber":None,
-    "version":8,
+    "version":9,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, __component__ ,
   version, severity, milestone, status, owner, Estimated_work, Total_work,
@@ -439,7 +439,7 @@ ORDER BY __component__, _ord ASC, ticket
     {
     "title":"Ticket Hours Grouped By Milestone",
     "reportnumber":None,
-    "version":9,
+    "version":10,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version,
   severity, __milestone__, status, owner, Estimated_work, Total_work, billable,
@@ -515,7 +515,7 @@ ORDER BY __milestone__, _ord ASC, ticket
         {
     "title":"Ticket Hours Grouped By MileStone with Description",
     "reportnumber":None,
-    "version":9,
+    "version":10,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version, severity,
  __milestone__, status, owner, Estimated_work, Total_work, billable,

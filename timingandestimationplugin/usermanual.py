@@ -1,5 +1,5 @@
 user_manual_title = "Timing and Estimation Plugin User Manual"
-user_manual_version = 8
+user_manual_version = 9
 user_manual_wiki_title = "TimingAndEstimationPluginUserManual"
 user_manual_content = """
 [[TOC]]
@@ -36,6 +36,7 @@ not, and accurately get the correct billing information for all
 tickets.
 
 == Reports ==
+=== Report Types ===
 We provide a few different reports for querying different types of data:
     * '''Billing Reports''' Currently the billing reports are the only time based reports, and are therefore useful for getting an estimate what tickets had times (and totals), and which developers spent their time where.
        * Ticket Work Summary
@@ -48,6 +49,22 @@ We provide a few different reports for querying different types of data:
        * Ticket Hours Grouped By Component with Description
        * Ticket Hours Grouped By Milestone
        * Ticket Hours Grouped By Milestone with Description
+=== Adding More Reports ===
+To add reports to the Management screen sections, you must run the following sql against your trac database
+Remember to fill in the @reportID of the report you want to insert, and to select the insert statement for the section of your choice.
+ * '''INSERT INTO report_version (report, version, tags) VALUES ( @reportID , 1, 'Ticket/Hour Reports');'''
+ * '''INSERT INTO report_version (report, version, tags) VALUES ( @reportID , 1, 'Billing Reports');'''
+
+=== Removing a Report ===
+To remove reports from the Management page, run the following query. 
+Remember to fill in the @reportID of the report you want to insert, and to select the insert statement for the section of your choice.
+ * To remove for this version of the plugin (will be over written in future plugin upgrades)
+   * '''UPDATE report_version SET tags=!'' WHERE report = @reportID ;'''
+ * To remove permanently (wont be over written in future plugin upgrades)
+   * '''UPDATE report_version SET version=9999, tags=!'' WHERE report = @reportID ;'''
+
+=== TAKE NOTE ===
+ '''The reports can only be called from the Management Page. They will not work from the Trac View Tickets page. (Due to the custom variables that need values).'''
 
 == Future Improvements ==
  * [http://trac-hacks.org/wiki/TimingAndEstimationPlugin See tickets] at the [http://trac-hacks.org/wiki/TimingAndEstimationPlugin project trac]
