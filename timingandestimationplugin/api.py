@@ -142,8 +142,9 @@ class TimeTrackingSetupParticipant(Component):
                                            WHERE tags LIKE '%T&E%'
                                            """)
         versions = {}
-        for (id, version, title) in _versions.rows:
-            versions[title] = (id, version)
+        if _versions and _versions.rows:
+            for (id, version, title) in _versions.rows:
+                versions[title] = (id, version)
             
         biggestId = dbhelper.get_scalar(self.env.get_db_cnx(),
                                         "SELECT ID FROM report ORDER BY ID DESC LIMIT 1")

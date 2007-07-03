@@ -107,7 +107,7 @@ def migrate_up_to_version( db_fn, helper ):
     try:
         start = int(get_plugin_db_version(db_fn()))
     except Exception:
-        start = 1
+        start = 0
     end = db_version
     r = range( start+1, end+1)
     import migrate
@@ -117,8 +117,10 @@ def migrate_up_to_version( db_fn, helper ):
             m = __import__("migrate."+key, globals(), locals(), ["up"])
             m.up(db_fn, helper)
         except Exception, e:
-            print "no migration for %s %s %s "% (key, e.args, dir(e))
-        
+            #we were not using this sytem before version 4
+            if i >= 4:
+                print "no migration for %s " % key
+
 
 class ResultSet:
     """ the result of calling getResultSet """
