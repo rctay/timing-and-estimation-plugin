@@ -1,8 +1,8 @@
 user_manual_title = "Timing and Estimation Plugin User Manual"
-user_manual_version = 9
+user_manual_version = 10
 user_manual_wiki_title = "TimingAndEstimationPluginUserManual"
 user_manual_content = """
-[[TOC]]
+[[PageOutline]]
 = Timing and Estimation Plugin User Manual =
 [http://trac-hacks.org/wiki/TimingAndEstimationPlugin TimingAndEstimationPlugin on TracHacks] | [http://trac-hacks.org/report/9?COMPONENT=TimingAndEstimationPlugin Open Tickets] | [http://trac-hacks.org/newticket?component=TimingAndEstimationPlugin&owner=bobbysmith007 New Ticket]  | 
 [http://trac-hacks.org/browser/timingandestimationplugin/trunk Web Browsable Source Code]
@@ -52,16 +52,19 @@ We provide a few different reports for querying different types of data:
 === Adding More Reports ===
 To add reports to the Management screen sections, you must run the following sql against your trac database
 Remember to fill in the @reportID of the report you want to insert, and to select the insert statement for the section of your choice.
- * '''INSERT INTO report_version (report, version, tags) VALUES ( @reportID , 1, 'Ticket/Hour Reports');'''
- * '''INSERT INTO report_version (report, version, tags) VALUES ( @reportID , 1, 'Billing Reports');'''
+ * {{{INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) VALUES (@reportID , @uuid, 'Timing and Estimation Plugin', 'Billing Reports', 1, 0);}}}
+ * {{{INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) VALUES (@reportID , @uuid, 'Timing and Estimation Plugin', 'Ticket/Hour Reports', 1, 0);}}}
+
+''NB: @uuid is a globally uninque identifier created via a tool such as {{{uuidgen}}} on Linux or various [http://www.famkruithof.net/uuid/uuidgen online tools]. It is used in this plugin to provide programatic reference to specific reports such that they can be upgraded successfully on future revisions of the plugin''
 
 === Removing a Report ===
 To remove reports from the Management page, run the following query. 
-Remember to fill in the @reportID of the report you want to insert, and to select the insert statement for the section of your choice.
+Remember to fill in the @reportID of the report you want to modify.
  * To remove for this version of the plugin (will be over written in future plugin upgrades)
-   * '''UPDATE report_version SET tags=!'' WHERE report = @reportID ;'''
+   * {{{UPDATE custom_report SET maingroup='x'||maingroup WHERE report = @reportID;}}}
  * To remove permanently (wont be over written in future plugin upgrades)
-   * '''UPDATE report_version SET version=9999, tags=!'' WHERE report = @reportID ;'''
+   * {{{UPDATE custom_report SET version=9999, maingroup='x'||maingroup WHERE report = @reportID;}}}
+''NB: The 'x' part is not important - you just need to make the column read something other than 'Timing and Estimation Plugin'.''
 
 === TAKE NOTE ===
  '''The reports can only be called from the Management Page. They will not work from the Trac View Tickets page. (Due to the custom variables that need values).'''

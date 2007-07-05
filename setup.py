@@ -7,7 +7,7 @@ PACKAGE = 'timingandestimationplugin'
 setup(name=PACKAGE,
       description='Plugin to make Trac support time estimation and tracking',
       keywords='trac plugin estimation timetracking',
-      version='0.4.4',
+      version='0.4.5',
       url='http://trac-hacks.org/wiki/TimingAndEstimationPlugin',
       license='http://www.opensource.org/licenses/mit-license.php',
       author='Russ Tyndall at Acceleration.net',
@@ -18,7 +18,7 @@ setup(name=PACKAGE,
       See http://trac-hacks.org/wiki/TimingAndEstimationPlugin for details.
       """,
       packages=[PACKAGE],
-      package_data={PACKAGE : ['templates/*.cs', 'htdocs/*', 'migrate/*.py']},
+      package_data={PACKAGE : ['templates/*.html', 'htdocs/*']},
       entry_points={'trac.plugins': '%s = %s' % (PACKAGE, PACKAGE)})
 
 
@@ -42,4 +42,10 @@ setup(name=PACKAGE,
 
 ## jonas
 ## made it so that base_url was unnecessary
+
+## Colin Guthrie
+## trac-hacks user: coling
+## Refactored the custom reports code to make it
+## easy for other plugins to provide reports to
+## compliment those provided by default
 

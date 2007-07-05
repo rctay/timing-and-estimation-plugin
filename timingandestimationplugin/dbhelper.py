@@ -1,5 +1,3 @@
-db_version_key = 'TimingAndEstimationPlugin_Db_Version';
-db_version = 4
 mylog = None;
 
 
@@ -60,24 +58,6 @@ with parameters:%s\nException:%s'%(sql, params, e));
     else:
         return None;
 
-def get_plugin_db_version(db):
-    sql = "SELECT value FROM system where name = '%s';" % db_version_key
-    val = get_scalar(db, sql)
-    return val;
-
-def set_plugin_db_version(db_fn):
-    if get_plugin_db_version(db_fn()):
-        sql = "UPDATE system SET value='%s' WHERE name = '%s'" % (db_version, db_version_key)
-    else:
-        sql = "INSERT INTO system (name, value) VALUES( '%s', '%s') " % ( db_version_key, str(db_version) )
-    execute_non_query(db_fn(), sql);
-
-def db_needs_upgrade(db):
-    ver = get_plugin_db_version(db);
-    if not ver or int(ver) < int(db_version):
-        return True
-    return False
-
 def db_table_exists(db, table):
     sql = "SELECT * FROM %s LIMIT 1" % table;
     cur = db.cursor()
@@ -102,24 +82,6 @@ def get_column_as_list(db, sql, col=0, *params):
 def get_result_set(db, sql, *params):
     """Executes the query and returns a Result Set"""
     return ResultSet(get_all(db, sql, *params))
-
-def migrate_up_to_version( db_fn, helper ):
-    try:
-        start = int(get_plugin_db_version(db_fn()))
-    except Exception:
-        start = 0
-    end = db_version
-    r = range( start+1, end+1)
-    import migrate
-    for i in  r:
-        key = "upgrade"+str(i)
-        try:
-            m = __import__("migrate."+key, globals(), locals(), ["up"])
-            m.up(db_fn, helper)
-        except Exception, e:
-            #we were not using this sytem before version 4
-            if i >= 4:
-                print "no migration for %s " % key
 
 
 class ResultSet:

@@ -3,7 +3,6 @@ import dbhelper
 import time
 from ticket_daemon import *
 from usermanual import *
-from reports import all_reports
 from trac.log import logger_factory
 from trac.ticket import ITicketChangeListener, Ticket
 from trac.core import *
@@ -12,6 +11,8 @@ from trac.perm import IPermissionRequestor, PermissionSystem
 from webui import * 
 from ticket_webui import *
 from query_webui import *
+from reportmanager import CustomReportManager
+
 
 ## report columns
 ## id|author|title|query|description
@@ -38,30 +39,54 @@ class TimeTrackingSetupParticipant(Component):
         
         """
     implements(IEnvironmentSetupParticipant)
+    db_version_key = None
+    db_version = None
+    db_installed_version = None
     
     """Extension point interface for components that need to participate in the
     creation and upgrading of Trac environments, for example to create
     additional database tables."""
     def __init__(self):
-        sql = "SELECT id, title FROM report ORDER BY ID"
+        # Setup logging
         dbhelper.mylog = self.log
-        self.reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
-        
+        self.db_version_key = 'TimingAndEstimationPlugin_Db_Version'
+        self.db_version = 5
+        self.db_installed_version = None
+
+        # Initialise database schema version tracking.
+        db = self.env.get_db_cnx()
+        cursor = db.cursor()
+        cursor.execute("SELECT value FROM system WHERE name=%s", (self.db_version_key,))
+        try:
+            self.db_installed_version = int(cursor.fetchone()[0])
+        except:
+            self.db_installed_version = 0
+            cursor.execute("INSERT INTO system (name,value) VALUES(%s,%s)",
+                           (self.db_version_key, self.db_installed_version))
+            db.commit()
+            db.close()
+            print "Done"
+
     def environment_created(self):
         """Called when a new Trac environment is created."""
         if self.environment_needs_upgrade(None):
             self.upgrade_environment(None)
             
-    def db_needs_upgrade(self):
-        bill_date = dbhelper.db_table_exists(self.env.get_db_cnx(), 'bill_date');
-        report_version = dbhelper.db_table_exists(self.env.get_db_cnx(), 'report_version');
-        val =  dbhelper.db_needs_upgrade(self.env.get_db_cnx())
-        return val or not bill_date or not report_version
+
+    def system_needs_upgrade(self):
+        return self.db_installed_version < self.db_version
         
-    def db_do_upgrade(self):
-        bill_date = dbhelper.db_table_exists(self.env.get_db_cnx(), 'bill_date');
-        report_version = dbhelper.db_table_exists(self.env.get_db_cnx(), 'report_version');
-        if not bill_date:
+    def do_db_upgrade(self):
+        # Legacy support hack (supports upgrades from 0.1.6 to 0.1.7)
+        if self.db_installed_version == 0:
+            bill_date = dbhelper.db_table_exists(self.env.get_db_cnx(), 'bill_date');
+            report_version = dbhelper.db_table_exists(self.env.get_db_cnx(), 'report_version');
+            if bill_date and report_version:
+                self.db_installed_version = 1
+        # End Legacy support hack
+
+        
+        if self.db_installed_version < 1:
             print "Creating bill_date table"
             sql = """
             CREATE TABLE bill_date (
@@ -72,8 +97,6 @@ class TimeTrackingSetupParticipant(Component):
             """
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
             
-            
-        if not report_version:
             print "Creating report_version table"
             sql = """
             CREATE TABLE report_version (
@@ -83,136 +106,51 @@ class TimeTrackingSetupParticipant(Component):
             );
             """
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
-        dbhelper.migrate_up_to_version(self.env.get_db_cnx, dbhelper)
-        dbhelper.set_plugin_db_version(self.env.get_db_cnx)
-    
-    def reports_need_upgrade(self):
-        bit = False
-        report_version = dbhelper.db_table_exists(self.env.get_db_cnx(), 'report_version');
-        if not report_version:
-            return True
-        
-        #make versions hash
-        try:
-            _versions = dbhelper.get_result_set(self.env.get_db_cnx(),"""
-               SELECT report as id, version, r.title as title
-               FROM report_version
-               JOIN report r ON r.Id = report_version.report
-               WHERE tags LIKE '%T&E%' """)
-        except Exception:
-            return True;
-        versions = {}
 
-        if _versions.rows == None:
-            return True
+        if self.db_installed_version < 4:
+            print "Upgrading report_version table to v4"
+            sql ="""
+            ALTER TABLE report_version ADD COLUMN tags varchar(1024) null;
+            """
+            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
 
-        for (id, version, title) in _versions.rows:
-            versions[title] = (id, version)
+        if self.db_installed_version < 5:
+            # In this version we convert to using reportmanager.py
+            # The easiest migration path is to remove all the reports!!
+            # They will be added back in later but all custom reports will be lost (deleted)
+            print "Dropping report_version table"
+            sql = "DELETE FROM report " \
+                  "WHERE author=%s AND id IN (SELECT report FROM report_version)"
+            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, 'Timing and Estimation Plugin')
 
-            
-        for report_group in all_reports:
-            rlist = report_group["reports"]
-            for report in rlist:
-                title = report["title"]
-                new_version = report["version"]
-                #the report map is a list of (id, name) tuples for the reports
-                # here we want to see if our report is in the list
-                idx = [i for i in range(0, len(self.reportmap)) if self.reportmap[i][1] == title]
-                if not idx:
-                    self.log.warning("Report '%s' needs to be added" % title)
-                    bit = True;
-                else:
-                    # If we had a report make sure its at the correct version
-                    if versions.has_key(title):
-                        (id, ver) = versions[title]
-                    else:
-                        ver = 0
-                    if ver < new_version:
-                        bit = True
-        return bit
+            sql = "DROP TABLE report_version"
+            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+
                 
+        # This statement block always goes at the end this method
+        sql = "UPDATE system SET value=%s WHERE name=%s"
+        dbhelper.execute_non_query(self.env.get_db_cnx(),
+                                   sql, self.db_version, self.db_version_key)
+        self.db_installed_version = self.db_version
+    
+
     def do_reports_upgrade(self):
         self.log.debug( "Beginning Reports Upgrade");
-        #make version hash
-        _versions = dbhelper.get_result_set(self.env.get_db_cnx(),
-                                           """
-                                           SELECT report as id, version, r.title as title
-                                           FROM report_version
-                                           JOIN report r ON r.Id = report_version.report
-                                           WHERE tags LIKE '%T&E%'
-                                           """)
-        versions = {}
-        if _versions and _versions.rows:
-            for (id, version, title) in _versions.rows:
-                versions[title] = (id, version)
-            
-        biggestId = dbhelper.get_scalar(self.env.get_db_cnx(),
-                                        "SELECT ID FROM report ORDER BY ID DESC LIMIT 1")
-        def insert_report_version(id, ver, tag):
-            sql = "DELETE FROM report_version WHERE report = %s;"
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, id  )
-            sql = """
-            INSERT INTO report_version (report, version, tags)
-            VALUES (%s, %s, %s);"""
-            # print "about to insert report_version"
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, id, ver, tag )
-            # print "inserted report_version"
-            
-        for report_group in all_reports:
+        mgr = CustomReportManager(self.env, self.log)
+        r = __import__("reports", globals(), locals(), ["all_reports"])
+
+        for report_group in r.all_reports:
             rlist = report_group["reports"]
             group_title = report_group["title"]
-            tag = "T&E %s" % group_title
             for report in rlist:
                 title = report["title"]
                 new_version = report["version"]
-                report_id = [rid
-                             for (rid, map_title) in self.reportmap
-                             if map_title == title]
-                if not report_id:
-                    bit = True; 
-                    sql = """INSERT INTO report (id,author,title,query,description) 
-                             VALUES (%s,'Timing and Estimation Plugin',%s,%s,'') """
-                    biggestId += 1
-                    dbhelper.execute_non_query(self.env.get_db_cnx(), sql,
-                                               biggestId, title, report["sql"])
-                    insert_report_version(biggestId, new_version, tag)
+                mgr.add_report(report["title"], "Timing and Estimation Plugin", \
+                               "", report["sql"], \
+                               report["uuid"], report["version"],
+                               "Timing and Estimation Plugin",
+                               group_title)
 
-                    report["reportnumber"] = biggestId
-                    self.reportmap.extend([(biggestId,title)])
-                else:
-                    report_id = report_id[0]
-                    report["reportnumber"] = report_id
-                     # If we had a report make sure its at the correct version
-                    if versions.has_key(title):
-                        ( _ , ver) = versions[title]
-                    else:
-                        ver = 0
-                    if not ver:
-                        sql = """
-                        UPDATE report
-                        SET query=%s 
-                        WHERE id = %s """
-                        print "updating report: %s" % title
-                        dbhelper.execute_non_query(self.env.get_db_cnx(), sql,
-                                                   report["sql"], report_id )
-                        insert_report_version( report_id, new_version, tag )
-                    elif ver < new_version:
-                        sql = """
-                        UPDATE report
-                        SET query=%s 
-                        WHERE id = %s """
-                        print "updating report to new version: %s" % title
-                        dbhelper.execute_non_query(self.env.get_db_cnx(), sql,
-                                                   report["sql"], report_id )
-                        
-                        sql = """
-                        UPDATE report_version
-                        SET version = %s, tags = %s
-                        
-                        WHERE report = %s
-                        """
-                        dbhelper.execute_non_query(self.env.get_db_cnx(), sql, new_version, tag, report_id)
-                        
     def ticket_fields_need_upgrade(self):
         ticket_custom = "ticket-custom"
         return not ( self.config.get( ticket_custom, "totalhours" ) and \
@@ -284,9 +222,8 @@ class TimeTrackingSetupParticipant(Component):
         performed, `False` otherwise.
 
         """
-        return (self.db_needs_upgrade()) or \
+        return (self.system_needs_upgrade()) or \
                (self.ticket_fields_need_upgrade()) or \
-               (self.reports_need_upgrade()) or \
                (self.needs_user_man()) 
             
     def upgrade_environment(self, db):
@@ -300,15 +237,14 @@ class TimeTrackingSetupParticipant(Component):
             print s
             return True
         print "Timing and Estimation needs an upgrade"
-        if self.db_needs_upgrade():
-            p("Upgrading Database")
-            self.db_do_upgrade()
+        p("Upgrading Database")
+        self.do_db_upgrade()
+        p("Upgrading reports")
+        self.do_reports_upgrade()
+
         if self.ticket_fields_need_upgrade():
             p("Upgrading fields")
             self.do_ticket_field_upgrade()
-        if self.reports_need_upgrade():
-            p("Upgrading reports")
-            self.do_reports_upgrade()
         if self.needs_user_man():
             p("Upgrading usermanual")
             self.do_user_man_update()
@@ -316,5 +252,6 @@ class TimeTrackingSetupParticipant(Component):
 
 
         
+
 
 

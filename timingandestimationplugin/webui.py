@@ -3,7 +3,6 @@ import time
 import datetime
 import dbhelper
 from usermanual import * 
-from reports import all_reports
 from trac.log import logger_factory
 from trac.core import *
 from trac.web import IRequestHandler
@@ -11,39 +10,13 @@ from trac.util import Markup
 from trac.web.chrome import add_stylesheet, add_script, \
      INavigationContributor, ITemplateProvider
 from trac.web.href import Href
+from reportmanager import CustomReportManager
 
 
 
 class TimingEstimationAndBillingPage(Component):
     implements(INavigationContributor, IRequestHandler, ITemplateProvider)
 
-    #CACHING THIS WAS CAUSING PROBLEMS ON A GLOBAL INSTALL
-    def get_copy_report_hash_for_render(self, req):
-        new_reports = []
-        sql = "SELECT id, title FROM report ORDER BY ID"
-        reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
-        
-        for report_group in all_reports:
-            new_group = { "title" : report_group["title"] }
-            sql = """
-            SELECT id, title
-            FROM report
-            JOIN report_version on report.id = report_version.report
-            WHERE tags LIKE '%%%s%%'
-            ORDER BY ID""" % report_group["title"]
-            reportmap = dbhelper.get_all(self.env.get_db_cnx(), sql)[1]
-            new_reports_list = []
-            
-            for (r_id, r_name) in reportmap:
-                #find the report id for the name
-                new_report = {"title" : r_name,
-                              "reportnumber" : r_id,
-                              "href" : "%s/%s" % (req.href.report(), r_id)}
-                new_reports_list.extend([ new_report ])
-            new_group["reports"] = new_reports_list
-            new_reports.extend([new_group])
-        return new_reports
-            
     def __init__(self):
         pass
 
@@ -111,14 +84,17 @@ class TimingEstimationAndBillingPage(Component):
             if req.args.has_key('setbillingtime'):
                 self.set_bill_date(req.authname)
                 addMessage("All tickets last bill date updated")
-                
-        data = {};        
-        data["billing_info"] = {"messages": messages,
-                                "href":req.href.Billing(),
-                                "reports": self.get_copy_report_hash_for_render(req),
-                                "usermanual_href":req.href.wiki(user_manual_wiki_title),
-                                "usermanual_title":user_manual_title
-                                }
+
+        mgr = CustomReportManager(self.env, self.log)
+        data = {};
+        data["reports"] = mgr.get_reports_by_group("Timing and Estimation Plugin");
+        #self.log.debug("DEBUG got %s, %s" % (data["reports"], type(data["reports"])));
+        data["billing_info"] = {"messages":         messages,
+                                "href":             req.href.Billing(),
+                                "report_base_href": req.href.report(),
+                                "usermanual_href":  req.href.wiki(user_manual_wiki_title),
+                                "usermanual_title": user_manual_title }
+
         self.set_request_billing_dates(data)
 
         add_stylesheet(req, "Billing/billingplugin.css")

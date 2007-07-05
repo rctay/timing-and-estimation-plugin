@@ -8,7 +8,7 @@
   <xi:include href="macros.html" />
 
       <head>
-	<title>Time Tracking Management</title>
+	<title>Time Tracking Management for Trac.11</title>
     <script type="text/javascript" src="${chrome.htdocs_location}js/wikitoolbar.js"></script>
     <script type="text/javascript" py:choose="">
       $(document).ready(function() {
@@ -82,17 +82,18 @@
     </tr>
   </table>
   <ul id="reportlinks">
-  <py:for each="report_group in billing_info.reports" >
-    <li>$report_group.title
+  <py:for each="key in reports" >
+    <li>${reports[key]["title"]}
       <ul>
-        <py:for each="report in report_group.reports">
-          <li><a href="" onmouseover="linkify(this, '$report.href')"  >
+        <py:for each="report in reports[key]['reports']">
+          <li><a href="" onmouseover="linkify(this, '$billing_info.report_base_href/$report.id')"  >
             $report.title
           </a></li>     
        </py:for>
       </ul>
     </li>
   </py:for>
+
   </ul>
   <input type="submit" name="setbillingtime" value="Set Billing Time" onclick="return confirm('Are you sure that you want to create a billed date?')" />&nbsp;
 

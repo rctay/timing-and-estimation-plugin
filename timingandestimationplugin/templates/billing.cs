@@ -69,7 +69,7 @@
     <li><?cs var:report_group.title ?>
       <ul>
         <?cs each:report = report_group.reports ?>
-          <li><a href="" onmouseover="linkify(this, '<?cs var:report.href ?>')"  >
+          <li><a href="" onmouseover="linkify(this, '<?cs var:billing_info.report_base_href ?>/<?cs var:report.id ?>')"  >
             <?cs var:report.title ?>
           </a></li>     
        <?cs /each ?>
