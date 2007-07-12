@@ -8,7 +8,6 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "reportnumber":None,
     "version":14,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, __ticket__,
@@ -50,7 +49,6 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "uuid":"af13564f-0e36-4a17-96c0-632dc68d8d14",
     "title":"Milestone Work Summary",
-    "reportnumber":None,
     "version":13,
     "sql":"""
 
@@ -98,7 +96,6 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "uuid":"7bd4b0ce-da6d-4b11-8be3-07e65b540d99",
     "title":"Developer Work Summary",
-    "reportnumber":None,
     "version":13,
     "sql":"""
 SELECT author as __group__,__style__, ticket,
@@ -140,7 +137,6 @@ ticket_hours_reports = [
 {
     "uuid":"8d785cdb-dcf5-43c9-b2a6-216997b0011a",
     "title": "Ticket Hours",
-    "reportnumber": None,
     "version":10,
     "sql": """
 SELECT __color__, __style__, ticket, summary, component ,version, severity,
@@ -210,7 +206,6 @@ ORDER BY  _ord ASC, ticket
 {
     "uuid":"71e7c36d-e512-4d0b-b499-087d4d20ff0b",
     "title": "Ticket Hours with Description",
-    "reportnumber": None,
     "version":11,
     "sql": """
 SELECT __color__,  __style__,  ticket, summary, component ,version, severity,
@@ -289,7 +284,6 @@ ORDER BY _ord ASC, ticket
     {
     "uuid":"5f33b102-e6a6-47e8-976c-ac7a6794a909",
     "title":"Ticket Hours Grouped By Component",
-    "reportnumber":None,
     "version":10,
     "sql": """
 SELECT __color__, __group__, __style__, ticket, summary, __component__ ,version,
@@ -370,7 +364,6 @@ ORDER BY __component__, _ord ASC,ticket
     {
     "uuid":"7816f034-a174-4a94-aed6-358fb648b2fc",
     "title":"Ticket Hours Grouped By Component with Description",
-    "reportnumber":None,
     "version":9,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, __component__ ,
@@ -446,7 +439,6 @@ ORDER BY __component__, _ord ASC, ticket
     {
     "uuid":"03815803-7688-4f3a-8e65-8d254cc1d1fb",
     "title":"Ticket Hours Grouped By Milestone",
-    "reportnumber":None,
     "version":10,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version,
@@ -523,7 +515,6 @@ ORDER BY __milestone__, _ord ASC, ticket
         {
     "uuid":"040c9025-7641-4d18-96ad-2b26b4095566",
     "title":"Ticket Hours Grouped By MileStone with Description",
-    "reportnumber":None,
     "version":10,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version, severity,

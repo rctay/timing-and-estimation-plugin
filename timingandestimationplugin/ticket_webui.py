@@ -22,7 +22,6 @@ class TicketWebUiAddon(Component):
             return ""
 
     def get_navigation_items(self, req):
-        src = req.href.chrome("Billing/ticket.js")
         if re.search('ticket', req.path_info):
-            yield 'mainnav', "ticket-addon", \
-                  Markup("""<script language="javascript" type="text/javascript" src="%s"></script>"""%src)
+            add_script(req, 'Billing/ticket.js')
+            yield 'mainnav', "ticket-addon", ""
