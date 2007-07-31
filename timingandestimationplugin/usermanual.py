@@ -1,5 +1,5 @@
 user_manual_title = "Timing and Estimation Plugin User Manual"
-user_manual_version = 10
+user_manual_version = 11
 user_manual_wiki_title = "TimingAndEstimationPluginUserManual"
 user_manual_content = """
 [[PageOutline]]
@@ -26,6 +26,11 @@ In adhering to our design goal, rather than creating a new ticket interface, I c
 This page provide a small interface for querying the tickets and adding a bill date at the current time.  
 This interface mostly just gives you links that match the interface to open any of the give reports,
 providing it the correct set of input parameters
+
+The 'Management' button should be in the main title bar.  It is possible that if you are viewing at a low resolution, it was pushed off the edge of the screen.  Also if you are not logged in with report_view permissions, it will not show that button.
+
+The direct url is '/Billing'.
+
 
 === Set Bill Date ===
 

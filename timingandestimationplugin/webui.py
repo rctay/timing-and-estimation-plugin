@@ -1,3 +1,4 @@
+from pkg_resources import resource_filename
 import re
 import time
 import datetime
@@ -66,19 +67,13 @@ class TimingEstimationAndBillingPage(Component):
         data['billing_info']["billdates"] = billing_dates
 
     def match_request(self, req):
-        if re.search('/Billing', req.path_info):
-            return True
-        return None
+        return req.path_info.startswith('/Billing')
 
     def process_request(self, req):
         messages = []
 
         def addMessage(s):
             messages.extend([s]);
-
-        if not re.search('/Billing', req.path_info):
-            return None
-
 
         if req.method == 'POST':
             if req.args.has_key('setbillingtime'):
@@ -107,14 +102,12 @@ class TimingEstimationAndBillingPage(Component):
         """Return the absolute path of a directory containing additional
         static resources (such as images, style sheets, etc).
         """
-        from pkg_resources import resource_filename
         return [('Billing', resource_filename(__name__, 'htdocs'))]
 
     def get_templates_dirs(self):
         """Return the absolute path of the directory containing the provided
-        ClearSilver templates.
+        genshi templates.
         """
-        from pkg_resources import resource_filename
         rtn = [resource_filename(__name__, 'templates')]
         return rtn
     

@@ -1,6 +1,7 @@
 import re
 import dbhelper
 import time
+from tande_filters import * 
 from ticket_daemon import *
 from usermanual import *
 from trac.log import logger_factory

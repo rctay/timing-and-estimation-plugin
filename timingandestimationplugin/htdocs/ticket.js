@@ -56,7 +56,7 @@
    
    
    InitBilling = function(){
-      // Convert totalhours field to non-editable
+      /*  // Convert totalhours field to non-editable
       try
       {
 	 var x = document.getElementById('totalhours');
@@ -72,7 +72,8 @@
 	 }
       }
       catch (er) {}
-      
+      */
+
       // Display yes/no in the summary
       // if we fail, then no harm done.
       try

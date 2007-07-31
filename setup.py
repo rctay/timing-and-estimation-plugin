@@ -7,7 +7,7 @@ PACKAGE = 'timingandestimationplugin'
 setup(name=PACKAGE,
       description='Plugin to make Trac support time estimation and tracking',
       keywords='trac plugin estimation timetracking',
-      version='0.4.7',
+      version='0.4.8',
       url='http://www.trac-hacks.org/wiki/TimingAndEstimationPlugin',
       license='http://www.opensource.org/licenses/mit-license.php',
       author='Russ Tyndall at Acceleration.net',
@@ -50,3 +50,7 @@ setup(name=PACKAGE,
 ##  compliment those provided by default
 ## Added Javascript that improves Ticket UI
 
+## Dave Abrahams <dave@boost-consulting.com>
+##
+## Genshi filters to remove T&E reports from the
+## standard reports page, where they display errors
