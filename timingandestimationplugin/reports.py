@@ -8,13 +8,17 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "version":14,
+    "version":16,
     "sql":"""
-SELECT __ticket__ as __group__, __style__, __ticket__,
+SELECT __ticket__ as __group__, __style__, ticket,
 newvalue as Work_added, author, time, _ord
 FROM(
-  SELECT '' as __style__, author, t.id as __ticket__,
-  CAST(newvalue as DECIMAL) as newvalue, ticket_change.time as time, 0 as _ord
+  SELECT '' as __style__, author,
+  t.summary as __ticket__,
+  t.id as ticket,
+  CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+    ELSE CAST( newvalue AS DECIMAL ) END AS newvalue,
+  ticket_change.time as time, 0 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
@@ -29,7 +33,10 @@ FROM(
   
   SELECT 'background-color:#DFE;' as __style__,
     'Total work done on the ticket in the selected time period ' as author,
-    t.id as __ticket__, sum( CAST(newvalue as DECIMAL) ) as newvalue,
+    t.summary as __ticket__,
+    t.id as ticket,
+  SUM( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+         ELSE CAST( newvalue AS DECIMAL ) END ) as newvalue,
     NULL as time, 1 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
@@ -49,7 +56,7 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "uuid":"af13564f-0e36-4a17-96c0-632dc68d8d14",
     "title":"Milestone Work Summary",
-    "version":13,
+    "version":14,
     "sql":"""
 
 SELECT 
@@ -57,7 +64,8 @@ SELECT
   time, _ord
 FROM(
   SELECT '' as __style__, t.id as ticket,
-    SUM(CAST(newvalue as DECIMAL)) as newvalue, t.summary as summary,
+    SUM( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+         ELSE CAST( newvalue AS DECIMAL ) END) as newvalue, t.summary as summary,
     MAX(ticket_change.time) as time, t.milestone as milestone, 0 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
@@ -73,7 +81,8 @@ FROM(
   UNION 
   
   SELECT 'background-color:#DFE;' as __style__, NULL as ticket,
-    sum(CAST(newvalue as DECIMAL)) as newvalue, 'Total work done' as summary,
+    sum( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+         ELSE CAST( newvalue AS DECIMAL ) END) as newvalue, 'Total work done' as summary,
     NULL as time, t.milestone as milestone, 1 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
@@ -96,13 +105,16 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "uuid":"7bd4b0ce-da6d-4b11-8be3-07e65b540d99",
     "title":"Developer Work Summary",
-    "version":13,
+    "version":14,
     "sql":"""
-SELECT author as __group__,__style__, ticket,
+SELECT author as __group__,__style__, ticket, summary,
   newvalue as Work_added, time as time, _ord
 FROM(
-  SELECT '' as __style__, author, cast(t.id as text) as ticket,
-    CAST(newvalue as DECIMAL) as newvalue, ticket_change.time as time, 0 as _ord
+  SELECT '' as __style__, author, t.id  as ticket,
+    t.summary as summary,
+    CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+         ELSE CAST( newvalue AS DECIMAL ) END as newvalue,
+    ticket_change.time as time, 0 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
@@ -116,7 +128,10 @@ FROM(
   UNION 
   
   SELECT 'background-color:#DFE;' as __style__, author, NULL as ticket,
-    sum(CAST(newvalue as DECIMAL)) as newvalue, NULL as time, 1 as _ord
+    Null as summary,
+    SUM( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
+         ELSE CAST( newvalue AS DECIMAL ) END) as newvalue,
+    NULL as time, 1 as _ord
   FROM ticket_change
   JOIN ticket t on t.id = ticket_change.ticket
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
@@ -133,11 +148,12 @@ ORDER BY author,  _ord ASC, time
     """
     },#END Hours Per Developer
 ]
+th_version =12
 ticket_hours_reports = [
 {
     "uuid":"8d785cdb-dcf5-43c9-b2a6-216997b0011a",
     "title": "Ticket Hours",
-    "version":10,
+    "version":th_version,
     "sql": """
 SELECT __color__, __style__, ticket, summary, component ,version, severity,
   milestone, status, owner, Estimated_work, Total_work, billable,_ord
@@ -146,8 +162,10 @@ FROM (
     '' as __style__,
     t.id AS ticket, summary AS summary,             -- ## Break line here
     component,version, severity, milestone, status, owner,
-    CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-    CAST(totalhours.value as DECIMAL) as Total_work, 
+    CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+      ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+    CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+      ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work, 
     CASE WHEN billable.value = 1 THEN 'Y' else 'N' END as billable,
     time AS created, changetime AS modified,         -- ## Dates are formatted
     description AS _description_,                    -- ## Uses a full row
@@ -174,9 +192,18 @@ FROM (
   SELECT '1' AS __color__,
          'background-color:#DFE;' as __style__,
          NULL as ticket, 'Total' AS summary,             
-         NULL as component,NULL as version, NULL as severity, NULL as  milestone, NULL as status, NULL as owner,
-         SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-         SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+         NULL as component,NULL as version, NULL as severity, NULL as  milestone,
+         'Time Remaining: ' as status,
+         CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024))  as owner,
+         SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+      ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+         SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+      ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
          NULL as billable,
          NULL as created, NULL as modified,         -- ## Dates are formatted
   
@@ -202,11 +229,11 @@ FROM (
 ORDER BY  _ord ASC, ticket
     """
     },
-#END Ticket Hours 
+#END Ticket Hours
 {
     "uuid":"71e7c36d-e512-4d0b-b499-087d4d20ff0b",
     "title": "Ticket Hours with Description",
-    "version":11,
+    "version":th_version,
     "sql": """
 SELECT __color__,  __style__,  ticket, summary, component ,version, severity,
  milestone, status, owner, Estimated_work, Total_work, billable
@@ -221,8 +248,10 @@ SELECT p.value AS __color__,
        '' as __style__,
        t.id AS ticket, summary AS summary,             -- ## Break line here
        component,version, severity, milestone, status, owner,
-       CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-       CAST(totalhours.value as DECIMAL) as Total_work,
+       CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+      ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+       CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+      ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work,
        CASE WHEN billable.value = 1 THEN 'Y'
             else 'N'
        END as billable,
@@ -251,9 +280,18 @@ UNION
 SELECT '1' AS __color__,
        'background-color:#DFE;' as __style__,
        NULL as ticket, 'Total' AS summary,             
-       NULL as component,NULL as version, NULL as severity, NULL as  milestone, NULL as status, NULL as owner,
-       SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-       SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+       NULL as component,NULL as version, NULL as severity, NULL as  milestone,
+       'Time Remaining: ' as status,
+       CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024))  as owner,
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
        NULL as billable,
        NULL as created, NULL as modified,         -- ## Dates are formatted
 
@@ -284,7 +322,7 @@ ORDER BY _ord ASC, ticket
     {
     "uuid":"5f33b102-e6a6-47e8-976c-ac7a6794a909",
     "title":"Ticket Hours Grouped By Component",
-    "version":10,
+    "version":th_version,
     "sql": """
 SELECT __color__, __group__, __style__, ticket, summary, __component__ ,version,
   severity, milestone, status, owner, Estimated_work, total_work, billable,
@@ -296,8 +334,10 @@ SELECT p.value AS __color__,
        '' as __style__,
        t.id AS ticket, summary AS summary,             -- ## Break line here
        component as __component__,version, severity, milestone, status, owner,
-       CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-       CAST(totalhours.value as DECIMAL) as Total_work,
+       CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+       CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work,
        CASE WHEN billable.value = 1 THEN 'Y'
             else 'N'
        END as billable,
@@ -328,10 +368,17 @@ SELECT '1' AS __color__,
        'background-color:#DFE;' as __style__,
        NULL as ticket, 'Total work' AS summary,             
        t.component as __component__, NULL as version, NULL as severity,
-       NULL as  milestone, NULL as status,
-       NULL as owner,
-       SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-       SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+       NULL as  milestone, 'Time Remaining: ' as status,
+       CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024))  as owner,
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
        NULL as billable,
        NULL as created,
        NULL as modified,         -- ## Dates are formatted
@@ -364,7 +411,7 @@ ORDER BY __component__, _ord ASC,ticket
     {
     "uuid":"7816f034-a174-4a94-aed6-358fb648b2fc",
     "title":"Ticket Hours Grouped By Component with Description",
-    "version":9,
+    "version":th_version,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, __component__ ,
   version, severity, milestone, status, owner, Estimated_work, Total_work,
@@ -376,8 +423,10 @@ SELECT p.value AS __color__,
        '' as __style__,
        t.id AS ticket, summary AS summary,             -- ## Break line here
        component as __component__, version, severity, milestone, status, owner,
-       CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-       CAST(totalhours.value as DECIMAL) as Total_work,
+       CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+       CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work,
        CASE WHEN billable.value = 1 THEN 'Y' else 'N' END as billable,
        time AS created, changetime AS modified,         -- ## Dates are formatted
        description AS _description_,                    -- ## Uses a full row
@@ -406,9 +455,17 @@ SELECT '1' AS __color__,
        'background-color:#DFE;' as __style__,
        NULL as ticket, 'Total work' AS summary,             
        t.component as __component__, NULL as version, NULL as severity,
-       NULL as  milestone, NULL as status, NULL as owner,
-       SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-       SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+       NULL as  milestone, 'Time Remaining: ' as status,
+       CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024))  as owner,
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
        NULL as billable,
        NULL as created, NULL as modified,         -- ## Dates are formatted
 
@@ -439,7 +496,7 @@ ORDER BY __component__, _ord ASC, ticket
     {
     "uuid":"03815803-7688-4f3a-8e65-8d254cc1d1fb",
     "title":"Ticket Hours Grouped By Milestone",
-    "version":10,
+    "version":th_version,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version,
   severity, __milestone__, status, owner, Estimated_work, Total_work, billable,
@@ -451,8 +508,10 @@ SELECT p.value AS __color__,
        '' as __style__,
        t.id AS ticket, summary AS summary,             -- ## Break line here
        component,version, severity, milestone as __milestone__, status, owner,
-       CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-       CAST(totalhours.value as DECIMAL) as Total_work,
+       CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+       CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work,
        CASE WHEN billable.value = 1 THEN 'Y'
             else 'N'
        END as billable,
@@ -482,9 +541,17 @@ SELECT '1' AS __color__,
        'background-color:#DFE;' as __style__,
        NULL as ticket, 'Total work' AS summary,             
        NULL as component,NULL as version, NULL as severity,
-       t.milestone as  __milestone__, NULL as status, NULL as owner,
-       SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-       SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+       t.milestone as  __milestone__, 'Time Remaining: ' as status,
+       CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024)) as owner,
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
        NULL as billable,
        NULL as created, NULL as modified,         -- ## Dates are formatted
 
@@ -515,7 +582,7 @@ ORDER BY __milestone__, _ord ASC, ticket
         {
     "uuid":"040c9025-7641-4d18-96ad-2b26b4095566",
     "title":"Ticket Hours Grouped By MileStone with Description",
-    "version":10,
+    "version":th_version,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, component ,version, severity,
  __milestone__, status, owner, Estimated_work, Total_work, billable,
@@ -527,8 +594,10 @@ SELECT p.value AS __color__,
        '' as __style__,
        t.id AS ticket, summary AS summary,             -- ## Break line here
        component,version, severity, milestone as __milestone__, status, owner,
-       CAST(EstimatedHours.value as DECIMAL) as Estimated_work,
-       CAST(totalhours.value as DECIMAL) as Total_work,
+       CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END as Estimated_work,
+       CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END as Total_work,
        CASE WHEN billable.value = 1 THEN 'Y'
             else 'N'
        END as billable,
@@ -560,9 +629,17 @@ SELECT '1' AS __color__,
        NULL as ticket, 'Total work' AS summary,             
        NULL as component,NULL as version, NULL as severity,
        t.milestone as __milestone__,
-       NULL as status, NULL as owner,
-       SUM(CAST(EstimatedHours.value as DECIMAL)) as Estimated_work,
-       SUM(CAST(totalhours.value as DECIMAL)) as Total_work,
+       'Time Remaining: ' as status,
+       CAST(
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END)
+         AS VARCHAR(1024)) as owner,
+       SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
+         ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
+       SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
+         ELSE CAST( totalhours.value AS DECIMAL ) END) as Total_work,
        NULL as billable,
        NULL as created, NULL as modified,         -- ## Dates are formatted
        NULL AS _description_,

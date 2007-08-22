@@ -51,7 +51,7 @@ class TimeTrackingSetupParticipant(Component):
         # Setup logging
         dbhelper.mylog = self.log
         self.db_version_key = 'TimingAndEstimationPlugin_Db_Version'
-        self.db_version = 5
+        self.db_version = 6
         self.db_installed_version = None
 
         # Initialise database schema version tracking.
@@ -126,15 +126,14 @@ class TimeTrackingSetupParticipant(Component):
 
             sql = "DROP TABLE report_version"
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
-
+        #version 6 upgraded reports
                 
         # This statement block always goes at the end this method
         sql = "UPDATE system SET value=%s WHERE name=%s"
         dbhelper.execute_non_query(self.env.get_db_cnx(),
                                    sql, self.db_version, self.db_version_key)
         self.db_installed_version = self.db_version
-    
-
+        
     def do_reports_upgrade(self):
         self.log.debug( "Beginning Reports Upgrade");
         mgr = CustomReportManager(self.env, self.log)
