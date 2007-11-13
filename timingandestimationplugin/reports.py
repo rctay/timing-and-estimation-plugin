@@ -8,7 +8,7 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "version":16,
+    "version":17,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, ticket,
 newvalue as Work_added, author, time, _ord
@@ -24,7 +24,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -43,7 +43,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -56,7 +56,7 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "uuid":"af13564f-0e36-4a17-96c0-632dc68d8d14",
     "title":"Milestone Work Summary",
-    "version":14,
+    "version":15,
     "sql":"""
 
 SELECT 
@@ -72,7 +72,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -89,7 +89,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -105,7 +105,7 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "uuid":"7bd4b0ce-da6d-4b11-8be3-07e65b540d99",
     "title":"Developer Work Summary",
-    "version":14,
+    "version":15,
     "sql":"""
 SELECT author as __group__,__style__, ticket, summary,
   newvalue as Work_added, time as time, _ord
@@ -120,7 +120,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -137,7 +137,7 @@ FROM(
   LEFT JOIN ticket_custom as billable on billable.ticket = t.id 
     and billable.name = 'billable'
   WHERE field = 'hours' and
-    t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
@@ -148,7 +148,7 @@ ORDER BY author,  _ord ASC, time
     """
     },#END Hours Per Developer
 ]
-th_version =12
+th_version =13
 ticket_hours_reports = [
 {
     "uuid":"8d785cdb-dcf5-43c9-b2a6-216997b0011a",
@@ -183,7 +183,7 @@ FROM (
   LEFT JOIN ticket_custom as billable ON billable.name='billable'
         AND billable.Ticket = t.Id
   
-    WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    WHERE t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
     
   
@@ -223,7 +223,7 @@ FROM (
   LEFT JOIN ticket_custom as billable ON billable.name='billable'
         AND billable.Ticket = t.Id
     
-    WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+    WHERE t.status IN (#STATUSES#) 
       AND billable.value in ($BILLABLE, $UNBILLABLE)
 )  as tbl
 ORDER BY  _ord ASC, ticket
@@ -271,7 +271,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
 
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   
 
@@ -311,7 +311,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
   
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
 )  as tbl
 ORDER BY _ord ASC, ticket
@@ -357,7 +357,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
 
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   
 
@@ -399,7 +399,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
   
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   GROUP BY t.component
 )  as tbl
@@ -444,7 +444,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
 
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   
 
@@ -485,7 +485,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
   
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   GROUP BY t.component
 )  as tbl
@@ -530,7 +530,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
 
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   
 
@@ -571,7 +571,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
   
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   GROUP BY t.milestone
 )  as tbl
@@ -617,7 +617,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
 
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   
 
@@ -657,7 +657,7 @@ LEFT JOIN ticket_custom as totalhours ON totalhours.name='totalhours'
 LEFT JOIN ticket_custom as billable ON billable.name='billable'
       AND billable.Ticket = t.Id
   
-  WHERE t.status IN ($NEW, $ASSIGNED, $REOPENED, $CLOSED) 
+  WHERE t.status IN (#STATUSES#) 
     AND billable.value in ($BILLABLE, $UNBILLABLE)
   GROUP BY t.milestone
 )  as tbl

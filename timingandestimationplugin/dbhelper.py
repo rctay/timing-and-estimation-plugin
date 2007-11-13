@@ -22,6 +22,12 @@ with parameters:%s\nException:%s'%(sql, params, e));
     
     return (desc, data)
 
+def get_first_row(db,sql,*params):
+    rows = get_all (db, sql, *params)[1]
+    if rows:
+        return rows[0]
+    return None
+
 def execute_non_query(db, sql, *params):
     """Executes the query on the given project"""
     cur = db.cursor()
@@ -32,7 +38,6 @@ def execute_non_query(db, sql, *params):
         mylog.error('There was a problem executing sql:%s \n \
 with parameters:%s\nException:%s'%(sql, params, e));
         db.rollback();
-        
     try:
         db.close()
     except:
@@ -77,6 +82,16 @@ def db_table_exists(db, table):
 
 def get_column_as_list(db, sql, col=0, *params):
     return [valueList[col] for valueList in get_all(db, sql, *params)[1]]
+
+def get_system_value(db, key):
+    return get_scalar(db, "SELECT value FROM system WHERE name=%s", 0, key)
+
+def set_system_value(env,  key, value):
+    if get_system_value(env.get_db_cnx(), key):
+        execute_non_query(env.get_db_cnx(), "UPDATE system SET value=%s WHERE name=%s", value, key)        
+    else:
+        execute_non_query(env.get_db_cnx(), "INSERT INTO system (value, name) VALUES (%s, %s)",
+            value, key)
 
 
 def get_result_set(db, sql, *params):

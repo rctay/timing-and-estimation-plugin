@@ -3,6 +3,7 @@ import re
 import time
 import datetime
 import dbhelper
+from sets import Set
 from usermanual import * 
 from trac.log import logger_factory
 from trac.core import *
@@ -12,8 +13,9 @@ from trac.web.chrome import add_stylesheet, add_script, \
      INavigationContributor, ITemplateProvider
 from trac.web.href import Href
 from reportmanager import CustomReportManager
+from statuses import get_statuses
 
-
+#get_statuses = api.get_statuses
 
 class TimingEstimationAndBillingPage(Component):
     implements(INavigationContributor, IRequestHandler, ITemplateProvider)
@@ -35,6 +37,9 @@ class TimingEstimationAndBillingPage(Component):
         VALUES (%s, %s, %s)
         """
         dbhelper.execute_non_query(self.env.get_db_cnx(), sql, when, now, strwhen)
+
+    
+
         
         
             
@@ -82,7 +87,8 @@ class TimingEstimationAndBillingPage(Component):
 
         mgr = CustomReportManager(self.env, self.log)
         data = {};
-        data["reports"] = mgr.get_reports_by_group("Timing and Estimation Plugin");
+        data["statuses"] = get_statuses(self.config, self.env)
+        data["reports"] = mgr.get_reports_by_group(CustomReportManager.TimingAndEstimationKey);
         #self.log.debug("DEBUG got %s, %s" % (data["reports"], type(data["reports"])));
         data["billing_info"] = {"messages":         messages,
                                 "href":             req.href.Billing(),

@@ -39,20 +39,19 @@
               <label for="unbillable">Not Billable: </label>
               <input id="unbillable" name="unbillable" type="checkbox"  /> 
             </div>
-            <div class="minorsection">
-	    <div class="label" >Status:</div>
-              <label for="new">New: </label>
-              <input id="new" name="new" type="checkbox" checked="true" /> 
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-              <label for="assigned">Assigned: </label>
-              <input id="assigned" name="assigned" type="checkbox" checked="true" /> 
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-              <label for="reopened">Reopened: </label>
-              <input id="reopened" name="reopened" type="checkbox" checked="true" /> 
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-              <label for="closed">Closed: </label>
-              <input id="closed" name="closed" type="checkbox" checked="true" /> 
-            </div>
+
+		  <div class="minorsection">
+		    <div class="label" >Status:</div>
+		    <py:for each="status in statuses" >
+		      <label for="$status">${status.capitalize()}: </label>
+		      <input id="$status" name="$status" type="checkbox" checked="true" /> 
+		    </py:for>
+		    <script>
+		      <py:for each="status in statuses" >
+			   addBillingField("$status", "checkbox", true);
+		      </py:for>
+		    </script>
+		  </div>
 
       </td>
     </tr><tr class="minorsection">

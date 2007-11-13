@@ -13,7 +13,7 @@ from webui import *
 from ticket_webui import *
 from query_webui import *
 from reportmanager import CustomReportManager
-
+from statuses import *
 
 ## report columns
 ## id|author|title|query|description
@@ -50,23 +50,12 @@ class TimeTrackingSetupParticipant(Component):
     def __init__(self):
         # Setup logging
         dbhelper.mylog = self.log
+        self.statuses_key = 'T&E-statuses'
         self.db_version_key = 'TimingAndEstimationPlugin_Db_Version'
         self.db_version = 6
-        self.db_installed_version = None
-
         # Initialise database schema version tracking.
-        db = self.env.get_db_cnx()
-        cursor = db.cursor()
-        cursor.execute("SELECT value FROM system WHERE name=%s", (self.db_version_key,))
-        try:
-            self.db_installed_version = int(cursor.fetchone()[0])
-        except:
-            self.db_installed_version = 0
-            cursor.execute("INSERT INTO system (name,value) VALUES(%s,%s)",
-                           (self.db_version_key, self.db_installed_version))
-            db.commit()
-            db.close()
-            print "Done"
+        self.db_installed_version = dbhelper.get_system_value(\
+            self.env.get_db_cnx(),self.db_version_key) or 0
 
     def environment_created(self):
         """Called when a new Trac environment is created."""
@@ -126,30 +115,36 @@ class TimeTrackingSetupParticipant(Component):
 
             sql = "DROP TABLE report_version"
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
-        #version 6 upgraded reports
+            
+        #version 6 upgraded reports  
                 
         # This statement block always goes at the end this method
         sql = "UPDATE system SET value=%s WHERE name=%s"
         dbhelper.execute_non_query(self.env.get_db_cnx(),
                                    sql, self.db_version, self.db_version_key)
         self.db_installed_version = self.db_version
-        
-    def do_reports_upgrade(self):
+    
+
+    def do_reports_upgrade(self, force=False):
         self.log.debug( "Beginning Reports Upgrade");
         mgr = CustomReportManager(self.env, self.log)
         r = __import__("reports", globals(), locals(), ["all_reports"])
-
+        statuses = get_statuses(self.config, self.env)
+        stat_vars = status_variables(statuses)
+        
         for report_group in r.all_reports:
             rlist = report_group["reports"]
             group_title = report_group["title"]
             for report in rlist:
                 title = report["title"]
                 new_version = report["version"]
+                
+                sql = report["sql"].replace('#STATUSES#', stat_vars)
                 mgr.add_report(report["title"], "Timing and Estimation Plugin", \
-                               "", report["sql"], \
-                               report["uuid"], report["version"],
-                               "Timing and Estimation Plugin",
-                               group_title)
+                               "Reports Must Be Accessed From the Management Screen",
+                               sql, report["uuid"], report["version"],
+                               CustomReportManager.TimingAndEstimationKey,
+                               group_title, force)
 
     def ticket_fields_need_upgrade(self):
         ticket_custom = "ticket-custom"
@@ -223,6 +218,7 @@ class TimeTrackingSetupParticipant(Component):
 
         """
         return (self.system_needs_upgrade()) or \
+               (self.have_statuses_changed()) or \
                (self.ticket_fields_need_upgrade()) or \
                (self.needs_user_man()) 
             
@@ -240,8 +236,14 @@ class TimeTrackingSetupParticipant(Component):
         p("Upgrading Database")
         self.do_db_upgrade()
         p("Upgrading reports")
-        self.do_reports_upgrade()
-
+        self.do_reports_upgrade(force=self.have_statuses_changed())
+        
+        #make sure we upgrade the statuses string so that we dont need to always rebuild the
+        # reports
+        stats = get_statuses(self.config, self.env)
+        val = ','.join(list(stats))
+        dbhelper.set_system_value(self.env, self.statuses_key, val)
+        
         if self.ticket_fields_need_upgrade():
             p("Upgrading fields")
             self.do_ticket_field_upgrade()
@@ -250,8 +252,22 @@ class TimeTrackingSetupParticipant(Component):
             self.do_user_man_update()
         print "Done Upgrading"
 
+    def have_statuses_changed(self):
+        """get the statuses from the last time we saved them,
+        compare them to the ones we have now (ignoring '' and None),
+        if we have different ones, throw return true
+        """
+        s = dbhelper.get_system_value(self.env.get_db_cnx(), self.statuses_key)
+        if not s:
+            return True
+        sys_stats = get_statuses(self.config, self.env)
+        s = s.split(',')
+        sys_stats.symmetric_difference_update(s)
+        sys_stats.difference_update(['', None])
+        return len(sys_stats) > 0
 
-        
-
-
-
+# class Dummy:
+#     def __init__(self, env, config):
+#         self.env = env
+#         self.config = config
+#         self.statuses_key = 'T&E-statuses'

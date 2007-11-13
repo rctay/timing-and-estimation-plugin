@@ -1,4 +1,5 @@
 from trac.core import *
+import dbhelper
 
 
 class CustomReportManager:
@@ -7,6 +8,7 @@ class CustomReportManager:
   name = "custom_report_manager_version"
   env = None
   log = None
+  TimingAndEstimationKey = "Timing and Estimation Plugin"
   
   def __init__(self, env, log):
     self.env = env
@@ -54,71 +56,67 @@ class CustomReportManager:
     except Exception, e:
       self.log.error("CustomReportManager Exception: %s" % (e,));
       db.rollback()
-  
-  def add_report(self, title, author, description, query, uuid, version, maingroup, subgroup=""):
-    # First check to see if we can load an existing version of this report
-    db = self.env.get_db_cnx()
-    cursor = db.cursor()
-    try:
-      cursor.execute("SELECT id, version FROM custom_report "
-                     "WHERE uuid=%s", (uuid,))
-      (id, currentversion) = cursor.fetchone()          
-    except:
-      id = None
-      currentversion = 0
+
+  def get_report_id_and_version (self, uuid):
+    sql = "SELECT id, version FROM custom_report " \
+          "WHERE uuid=%s"
+    tpl = dbhelper.get_first_row(self.env.get_db_cnx(), sql, uuid)
+    return tpl or (None, 0)
     
+  def get_new_report_id (self):
+    return dbhelper.get_scalar(self.env.get_db_cnx(),"SELECT MAX(id) FROM report")
+
+  def get_max_ordering(self, maingroup, subgroup):
+    return dbhelper.get_scalar(self.env.get_db_cnx(),
+      "SELECT MAX(ordering) FROM custom_report WHERE maingroup=%s AND subgroup=%s",
+      0, maingroup, subgroup) or 0
+  
+  def _insert_report (self, next_id, title, author, description, query,
+                      uuid, maingroup, subgroup, version, ordering):
+    self.log.debug("Inserting new report '%s' with uuid '%s'" % (title,uuid))
+    dbhelper.execute(self.env.get_db_cnx(),
+      "INSERT INTO report (id, title, author, description, query) " \
+      "VALUES (%s, %s, %s, %s, %s)", next_id, title, author, description, query)
+    dbhelper.execute(self.env.get_db_cnx(),
+      "INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) "\
+      "VALUES (%s, %s, %s, %s, %s, %s)", next_id, uuid, maingroup, subgroup, version, ordering)
+
+  def _update_report (self, id, title, author, description, query,
+                      maingroup, subgroup, version):
+    self.log.debug("Updating report '%s' with uuid '%s' to version %s" % (title, uuid, version))
+    dbhelper.execute(self.env.get_db_cnx(),
+      "UPDATE report SET title=%s, author=%s, description=%s, query=%s " \
+      "WHERE id=%s", title, author, description, query, id)
+    dbhelper.execute(self.env.get_db_cnx(),
+      "UPDATE custom_report SET version=%s, maingroup=%s, subgroup=%s "
+      "WHERE id=%s", version, maingroup, subgroup, id)
+                     
+  def add_report(self, title, author, description, query, uuid, version,
+                 maingroup, subgroup="", force=False):
+    """ If force is set, we ignore the version and re set the value anyway
+    """
+    # First check to see if we can load an existing version of this report
+    (id, currentversion) = self.get_report_id_and_version(uuid)
     try:
       if not id:
-        cursor.execute("SELECT MAX(id) FROM report")
-        next_id = int(cursor.fetchone()[0]) + 1
-        self.log.debug("Inserting new report with uuid '%s'" % (uuid,));
-
-        # Get the ordering of any current reports in this group/subgroup.
-        try:
-          cursor.execute("SELECT MAX(ordering) FROM custom_report "
-                         "WHERE maingroup=%s AND subgroup=%s", (maingroup, subgroup))
-          ordering = int(cursor.fetchone()[0]) + 1
-        except:
-          ordering = 0
-        
-        cursor.execute("INSERT INTO report (id, title, author, description, query) "
-                       "VALUES (%s, %s, %s, %s, %s)",
-                       (next_id, title, author, description, query))
-        cursor.execute("INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) "
-                       "VALUES (%s, %s, %s, %s, %s, %s)",
-                       (next_id, uuid, maingroup, subgroup, version, ordering))
-        db.commit()
-        db.close()
+        next_id = self.get_new_report_id()
+        ordering = self.get_max_ordering(maingroup, subgroup) + 1
+        self._insert_report(next_id, title, author, description, query,
+                      uuid, maingroup, subgroup, version, ordering)
         return True
-      if currentversion < version:
-        self.log.debug("Updating report with uuid '%s' to version %s" % (uuid,version));
-        cursor.execute("UPDATE report SET title=%s, author=%s, description=%s, query=%s "
-                       "WHERE id=%s", (title, author, description, query, id))
-        cursor.execute("UPDATE custom_report SET version=%s, maingroup=%s, subgroup=%s "
-                       "WHERE id=%s", (version, maingroup, subgroup, id))
-        db.commit()
-        db.close()
+      if currentversion < version or force:
+        self._update_report(id, title, author, description, query,
+                            maingroup, subgroup, version)
         return True
     except Exception, e:
       self.log.error("CustomReportManager Exception: %s" % (e,));
-      db.rollback()
-    
     return False
   
   def get_report_by_uuid(self, uuid):
-    db = self.env.get_db_cnx()
-    cursor = db.cursor()
-    rv = None
-    try:
-      cursor.execute("SELECT report.id,report.title FROM custom_report "
-                     "LEFT JOIN report ON custom_report.id=report.id "
-                     "WHERE custom_report.uuid=%s", (uuid,))
-      row = cursor.fetchone()
-      rv = (row[0], row[1])
-    except:
-      pass
-    
-    return rv
+    sql = "SELECT report.id,report.title FROM custom_report "\
+          "LEFT JOIN report ON custom_report.id=report.id "\
+          "WHERE custom_report.uuid=%s"
+    return dbhelper.get_first_row(self.env.get_db_cnx(),sql,uuid)
   
   def get_reports_by_group(self, group):
     db = self.env.get_db_cnx()
@@ -137,6 +135,5 @@ class CustomReportManager:
         rv[subgroup]["reports"].append( { "id": int(id), "title": title } )
     except:
       pass
-    
     return rv
 

@@ -1,15 +1,17 @@
 
-var linkify = 
-(function(){
+//var linkify = 
+//(function(){
    String.prototype.trim = 
       (function () {return this.replace(/^\s+/, "").replace(/\s+$/, "");});
    var invalidDate = new Date("invalid").toString()
    var billingfields= {}
+   var statusfields = []
    function dateToUnixEpoch(date){
       return Math.round(date.getTime()/1000) - (60 * date.getTimezoneOffset());
    }
-   function addBillingField( name /*optional type defaults to "textbox"*/ ){
-      var type = arguments.length > 1 ? arguments[1] : "textbox";
+   function addBillingField( name /*optional type defaults to "textbox", optional flag status*/ ){
+      var type = arguments.length >= 1 ? arguments[1] : "textbox";
+      var status = arguments.length >= 2 ? arguments[2] : false; 
       var getSet = 
 	 (function(){
 	    var valueProp = "value";
@@ -62,21 +64,27 @@ var linkify =
          getval : getSet,
 	 setval : getSet
       };
+      if (status){
+	 statusfields.push({
+	      name:name,
+	      "$" : function(){
+		  return document.getElementById(name);
+	      },
+	      getval : getSet,
+	      setval : getSet
+	 });
+      }
    }
 
    addBillingField("billable", "checkbox");
    addBillingField("unbillable", "checkbox");
-   addBillingField("new", "checkbox");
-   addBillingField("assigned", "checkbox");
-   addBillingField("reopened", "checkbox");
-   addBillingField("closed", "checkbox");
    addBillingField("startdate", "date");
    addBillingField("startbilling", "dateselect");
    addBillingField("enddate", "date");
    addBillingField("endbilling", "dateselect");
    
 
-   return function ( atag, basehref ){
+   var linkify = function ( atag, basehref ){
       var query = "";
       var haveAdded = false;
       function addToQuery(str){
@@ -90,10 +98,13 @@ var linkify =
       addToQuery(billingfields["unbillable"].getval() || !(billingfields["billable"].getval())
 		 ? "UNBILLABLE=0" : "UNBILLABLE=1");
 
-      addToQuery(billingfields["new"].getval() ? "NEW=new" : "NEW=");
-      addToQuery(billingfields["assigned"].getval() ? "ASSIGNED=assigned" : "ASSIGNED=");
-      addToQuery(billingfields["reopened"].getval() ? "REOPENED=reopened" : "REOPENED=");
-      addToQuery(billingfields["closed"].getval() ? "CLOSED=closed" : "CLOSED=");
+      for(var i=0, f = null ; f = statusfields[i] ; i++){
+	 val = f.name.toUpperCase()+"=";
+	 if(f.getval()){
+	    val += f.name
+	 }
+	 addToQuery(val);
+      }
 
       //startdate the date in the text box or the date in the dropdown or the first time
       startdate = billingfields["startdate"].getval() || billingfields["startbilling"].getval() || 0;
@@ -105,4 +116,4 @@ var linkify =
 
       atag.href = basehref+query;
    }
-})()
+//})()
