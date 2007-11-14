@@ -1,5 +1,5 @@
 from trac.core import *
-import dbhelper
+
 
 
 class CustomReportManager:
@@ -60,40 +60,46 @@ class CustomReportManager:
   def get_report_id_and_version (self, uuid):
     sql = "SELECT id, version FROM custom_report " \
           "WHERE uuid=%s"
-    tpl = dbhelper.get_first_row(self.env.get_db_cnx(), sql, uuid)
+    tpl = get_first_row(self.env.get_db_cnx(), sql, uuid)
     return tpl or (None, 0)
     
   def get_new_report_id (self):
-    return dbhelper.get_scalar(self.env.get_db_cnx(),"SELECT MAX(id) FROM report")
+    """find the next available report id """
+    return get_scalar(self.env.get_db_cnx(),"SELECT MAX(id) FROM report")
 
   def get_max_ordering(self, maingroup, subgroup):
-    return dbhelper.get_scalar(self.env.get_db_cnx(),
+    """ Find the maximum ordering value used for this group of the custom_report table"""
+    return get_scalar(self.env.get_db_cnx(),
       "SELECT MAX(ordering) FROM custom_report WHERE maingroup=%s AND subgroup=%s",
       0, maingroup, subgroup) or 0
   
   def _insert_report (self, next_id, title, author, description, query,
                       uuid, maingroup, subgroup, version, ordering):
+    """ Adds a row the custom_report_table """
     self.log.debug("Inserting new report '%s' with uuid '%s'" % (title,uuid))
-    dbhelper.execute(self.env.get_db_cnx(),
+    execute_non_query(self.env.get_db_cnx(),
       "INSERT INTO report (id, title, author, description, query) " \
       "VALUES (%s, %s, %s, %s, %s)", next_id, title, author, description, query)
-    dbhelper.execute(self.env.get_db_cnx(),
+    execute_non_query(self.env.get_db_cnx(),
       "INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) "\
       "VALUES (%s, %s, %s, %s, %s, %s)", next_id, uuid, maingroup, subgroup, version, ordering)
 
   def _update_report (self, id, title, author, description, query,
                       maingroup, subgroup, version):
+    """Updates a report and its row in the custom_report table """
     self.log.debug("Updating report '%s' with uuid '%s' to version %s" % (title, uuid, version))
-    dbhelper.execute(self.env.get_db_cnx(),
+    execute_non_query(self.env.get_db_cnx(),
       "UPDATE report SET title=%s, author=%s, description=%s, query=%s " \
       "WHERE id=%s", title, author, description, query, id)
-    dbhelper.execute(self.env.get_db_cnx(),
+    execute_non_query(self.env.get_db_cnx(),
       "UPDATE custom_report SET version=%s, maingroup=%s, subgroup=%s "
       "WHERE id=%s", version, maingroup, subgroup, id)
                      
   def add_report(self, title, author, description, query, uuid, version,
                  maingroup, subgroup="", force=False):
-    """ If force is set, we ignore the version and re set the value anyway
+    """
+    We add/update a report to the system. We will not overwrite unchanged versions
+    unless force is set.
     """
     # First check to see if we can load an existing version of this report
     (id, currentversion) = self.get_report_id_and_version(uuid)
@@ -116,7 +122,7 @@ class CustomReportManager:
     sql = "SELECT report.id,report.title FROM custom_report "\
           "LEFT JOIN report ON custom_report.id=report.id "\
           "WHERE custom_report.uuid=%s"
-    return dbhelper.get_first_row(self.env.get_db_cnx(),sql,uuid)
+    return get_first_row(self.env.get_db_cnx(),sql,uuid)
   
   def get_reports_by_group(self, group):
     db = self.env.get_db_cnx()
@@ -137,3 +143,45 @@ class CustomReportManager:
       pass
     return rv
 
+# similar functions are found in dbhelper, but this file should be fairly
+# stand alone so that it can be copied and pasted around
+def get_first_row(db,sql,*params):
+  """ Returns the first row of the query results as a tuple of values (or None)"""
+  cur = db.cursor()
+  data = None;
+  try:
+    cur.execute(sql, params)
+    data = cur.fetchone();
+    db.commit();
+  except Exception, e:
+    mylog.error('There was a problem executing sql:%s \n \
+    with parameters:%s\nException:%s'%(sql, params, e));
+    db.rollback()
+  try:
+    db.close()
+  except:
+    pass
+  return data;
+
+def execute_non_query(db, sql, *params):
+  """Executes the sql on a given connection using the provided params"""
+  cur = db.cursor()
+  try:
+    cur.execute(sql, params)
+    db.commit()
+  except Exception, e:
+    mylog.error('There was a problem executing sql:%s \n \
+    with parameters:%s\nException:%s'%(sql, params, e));
+    db.rollback();
+  try:
+    db.close()
+  except:
+    pass
+
+def get_scalar(db, sql, col=0, *params):
+  """ Gets a single value (in the specified column) from the result set of the query"""
+  data = get_first_row(db, sql, *params);
+  if data:
+    return data[col]
+  else:
+    return None;
