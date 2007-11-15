@@ -32,14 +32,15 @@
    function FloatToHoursMins(hours)
    {
       if (0 == hours) return hours;
-      mins = Math.floor((hours - Math.floor(hours)) * 60);
-      str = '';
-      if (hours) str += Math.floor(hours) + 'h';
-      if (mins)
-      {
-	 if (str) str += ' ';
-	 str += mins + 'm';
+      var neg = false;
+      if(hours < 0){
+	 neg = true;
+	 hours *= -1;
       }
+      mins = Math.floor((hours - Math.floor(hours)) * 60);
+      str = neg ? '-' : '';
+      if (hours) str += Math.floor(hours) + 'h';
+      if (mins)	 str += ' ' + mins + 'm';
       return str;
    }
    
@@ -79,10 +80,8 @@
       try
       {
 	 var b = document.getElementById('h_billable');
-	 while (b)
+	 while (b = b.nextSibling)
 	 {
-	    if (!b.nextSibling) break;
-	    b = b.nextSibling;
 	    if (b.nodeName == 'TD')
 	    {
 	       b.innerHTML = IntToYesNo(b.innerHTML);
@@ -109,7 +108,7 @@
       try
       {
 	 fields = Array('estimatedhours', 'totalhours');
-	 for (i=0; i < 2; ++i) 
+	 for (var i=0; i < 2; ++i) 
 	 {
 	    var b = document.getElementById('h_' + fields[i]);
 	    while (b)
@@ -128,58 +127,42 @@
       
       // Convert all relevent ticket changes to hours/minutes
       // if we fail, then no harm done.
-      try
-      {
+      try {
 	 changes = getElementsByClassName('changes', 'ul', document.getElementById('changelog'));
-	 for (i=0; i < changes.length; ++i)
-	 {
-	    change = changes[i];
-	    for (j=0; j < change.childNodes.length; ++j)
-	    {
-	       li = change.childNodes[j];
-	       if (li.nodeName != 'LI') continue;
-	       // We look for a STRONG childNode
-	       if (!li.firstChild 
-		   || li.firstChild.nodeName != 'STRONG'
-		   || !li.firstChild.firstChild
-		   || li.firstChild.firstChild.nodeName != '#text')
-	       {
-		  continue;
-	       }
-	       
-	       field = li.firstChild.firstChild.nodeValue;
-	       if (field == 'billable')
-	       {
-		  for (k=1; k < li.childNodes.length; ++k)
-		  {
-		     if (li.childNodes[k].nodeName != 'EM'
-			 || !li.childNodes[k].firstChild
-			 || li.childNodes[k].firstChild.nodeName != '#text')
-		     {
-			continue;
-		     }
-		     li.childNodes[k].firstChild.nodeValue = IntToYesNo(li.childNodes[k].firstChild.nodeValue);
-		  }
-	       }
-	       else if (field == 'hours'
-			|| field == 'estimatedhours'
-			|| field == 'totalhours')
-	       {
-		  for (k=1; k < li.childNodes.length; ++k)
-		  {
-		     if (li.childNodes[k].nodeName != 'EM'
-			 || !li.childNodes[k].firstChild
-			 || li.childNodes[k].firstChild.nodeName != '#text')
-		     {
-			continue;
-		     }
-		     li.childNodes[k].firstChild.nodeValue = FloatToHoursMins(li.childNodes[k].firstChild.nodeValue);
-		  }
-	       }
+	 var change, li;
+	 for (var i=0; change = changes[i]; i++) {
+	    for (var j=0, li = change.childNodes[j]; li = change.childNodes[j]; j++) {
+	       handleChangeRow(li); 
 	    }
 	 }
       }
       catch (er) {}
+   }
+
+   handleChangeRow = function(li){
+      var child, val, vals =[];
+      if (li.nodeName != 'LI') return;
+      // We look for a STRONG childNode
+      // We also need to find any em's following the STRONG
+      for(var i=0 ; child = li.childNodes[i] ; i++){
+	 if (child.nodeName == 'STRONG'){
+	    field = child.firstChild.nodeValue;
+	    if(!(field == 'hours'
+		 || field == 'estimatedhours'
+		 || field == 'totalhours'))
+	       return;
+	 }
+	 if (child.nodeName == 'EM'){
+	    vals.push([child, child.firstChild.nodeValue])
+	 } 
+      }
+      for(var i=0; val = vals[i] ; i++){
+	 out = FloatToHoursMins(Number(val[1]))
+	 //print(val[0]+'|'+ val[1] )
+	 //print("#"+ out)
+	 val[0].innerHTML = out
+      }
+      return vals;
    }
 
    teAddEventListener(window, 'load', InitBilling)
