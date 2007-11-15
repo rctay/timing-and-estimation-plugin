@@ -80,14 +80,8 @@
       try
       {
 	 var b = document.getElementById('h_billable');
-	 while (b = b.nextSibling)
-	 {
-	    if (b.nodeName == 'TD')
-	    {
-	       b.innerHTML = IntToYesNo(b.innerHTML);
-	       break;
-	    }
-	 }
+	 do{ b = b.nextSibling; }while(b.nodeName != "TD");
+	 b.innerHTML = IntToYesNo(b.innerHTML);
       }
       catch (er) {}
   
@@ -97,8 +91,9 @@
       try
       {
 	 var b = document.getElementById('h_hours');
-	 b.firstChild.nodeValue = '';
-	 b.nextSibling.nextSibling.firstChild.nodeValue = '';
+	 b.innerHTML = '';
+	 do{ b = b.nextSibling; }while(b.nodeName != "TD");
+	 b.innerHTML = '';
       }
       catch (er) {}
       
