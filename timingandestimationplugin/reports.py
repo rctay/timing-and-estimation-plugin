@@ -8,10 +8,10 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "version":17,
+    "version":18,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, ticket,
-newvalue as Work_added, author, time, _ord
+newvalue as Work_added, author, time as datetime, _ord
 FROM(
   SELECT '' as __style__, author,
   t.summary as __ticket__,
@@ -56,12 +56,12 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "uuid":"af13564f-0e36-4a17-96c0-632dc68d8d14",
     "title":"Milestone Work Summary",
-    "version":15,
+    "version":16,
     "sql":"""
 
 SELECT 
   milestone as __group__, __style__,  ticket, summary, newvalue as Work_added,
-  time, _ord
+  time  as datetime, _ord
 FROM(
   SELECT '' as __style__, t.id as ticket,
     SUM( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
@@ -105,10 +105,10 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "uuid":"7bd4b0ce-da6d-4b11-8be3-07e65b540d99",
     "title":"Developer Work Summary",
-    "version":15,
+    "version":16,
     "sql":"""
 SELECT author as __group__,__style__, ticket, summary,
-  newvalue as Work_added, time as time, _ord
+  newvalue as Work_added, time as datetime, _ord
 FROM(
   SELECT '' as __style__, author, t.id  as ticket,
     t.summary as summary,

@@ -14,6 +14,8 @@ from ticket_webui import *
 from query_webui import *
 from reportmanager import CustomReportManager
 from statuses import *
+from reports import all_reports
+from sets import Set
 
 ## report columns
 ## id|author|title|query|description
@@ -124,15 +126,26 @@ class TimeTrackingSetupParticipant(Component):
                                    sql, self.db_version, self.db_version_key)
         self.db_installed_version = self.db_version
     
-
+    def reports_need_upgrade(self):
+        mgr = CustomReportManager(self.env, self.log)
+        db_report_hash = mgr.get_reports_by_group(CustomReportManager.TimingAndEstimationKey)
+        db_reports = Set()
+        py_reports = Set()
+        for report_group in all_reports:
+            for report in report_group['reports']:
+                py_reports.add((report['uuid'], report['version']))
+        for key, report_group in db_report_hash.items():
+            for report in report_group['reports']:
+                db_reports.add((report['uuid'], report['version']))
+        return len(db_reports.symmetric_difference(py_reports)) > 0
+        
     def do_reports_upgrade(self, force=False):
         self.log.debug( "Beginning Reports Upgrade");
         mgr = CustomReportManager(self.env, self.log)
-        r = __import__("reports", globals(), locals(), ["all_reports"])
         statuses = get_statuses(self.config, self.env)
         stat_vars = status_variables(statuses)
         
-        for report_group in r.all_reports:
+        for report_group in all_reports:
             rlist = report_group["reports"]
             group_title = report_group["title"]
             for report in rlist:
@@ -218,6 +231,7 @@ class TimeTrackingSetupParticipant(Component):
 
         """
         return (self.system_needs_upgrade()) or \
+               (self.reports_need_upgrade()) or \
                (self.have_statuses_changed()) or \
                (self.ticket_fields_need_upgrade()) or \
                (self.needs_user_man()) 
@@ -266,8 +280,3 @@ class TimeTrackingSetupParticipant(Component):
         sys_stats.difference_update(['', None])
         return len(sys_stats) > 0
 
-# class Dummy:
-#     def __init__(self, env, config):
-#         self.env = env
-#         self.config = config
-#         self.statuses_key = 'T&E-statuses'

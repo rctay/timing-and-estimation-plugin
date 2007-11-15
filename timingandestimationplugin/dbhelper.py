@@ -42,6 +42,25 @@ with parameters:%s\nException:%s'%(sql, params, e));
         db.close()
     except:
         pass
+    
+def execute_in_trans(db, *args):
+    success = True
+    cur = db.cursor()
+    try:
+        for sql, params in args:
+            cur.execute(sql, params)
+            db.commit()
+    except Exception, e:
+        mylog.error('There was a problem executing sql:%s \n \
+        with parameters:%s\nException:%s'%(sql, params, e));
+        db.rollback();
+        success = False
+    try:
+        db.close()
+    except:
+        pass
+    return success
+
 
 def get_scalar(db, sql, col=0, *params):
     cur = db.cursor()

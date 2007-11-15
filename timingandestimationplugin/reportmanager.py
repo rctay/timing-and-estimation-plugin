@@ -60,41 +60,38 @@ class CustomReportManager:
   def get_report_id_and_version (self, uuid):
     sql = "SELECT id, version FROM custom_report " \
           "WHERE uuid=%s"
-    tpl = get_first_row(self.env.get_db_cnx(), sql, uuid)
+    tpl = self.get_first_row(sql, uuid)
     return tpl or (None, 0)
     
   def get_new_report_id (self):
     """find the next available report id """
-    return get_scalar(self.env.get_db_cnx(),"SELECT MAX(id) FROM report")
+    return self.get_scalar("SELECT MAX(id) FROM report")+1
 
   def get_max_ordering(self, maingroup, subgroup):
     """ Find the maximum ordering value used for this group of the custom_report table"""
-    return get_scalar(self.env.get_db_cnx(),
-      "SELECT MAX(ordering) FROM custom_report WHERE maingroup=%s AND subgroup=%s",
-      0, maingroup, subgroup) or 0
+    return self.get_scalar("SELECT MAX(ordering) FROM custom_report WHERE maingroup=%s AND subgroup=%s",
+                           0, maingroup, subgroup) or 0
   
   def _insert_report (self, next_id, title, author, description, query,
                       uuid, maingroup, subgroup, version, ordering):
     """ Adds a row the custom_report_table """
     self.log.debug("Inserting new report '%s' with uuid '%s'" % (title,uuid))
-    execute_non_query(self.env.get_db_cnx(),
-      "INSERT INTO report (id, title, author, description, query) " \
-      "VALUES (%s, %s, %s, %s, %s)", next_id, title, author, description, query)
-    execute_non_query(self.env.get_db_cnx(),
-      "INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) "\
-      "VALUES (%s, %s, %s, %s, %s, %s)", next_id, uuid, maingroup, subgroup, version, ordering)
+    self.execute_in_trans(("INSERT INTO report (id, title, author, description, query) " \
+                           "VALUES (%s, %s, %s, %s, %s)",
+                           (next_id, title, author, description, query)),
+                          ("INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) " \
+                           "VALUES (%s, %s, %s, %s, %s, %s)",
+                           (next_id, uuid, maingroup, subgroup, version, ordering)))
 
   def _update_report (self, id, title, author, description, query,
                       maingroup, subgroup, version):
     """Updates a report and its row in the custom_report table """
-    self.log.debug("Updating report '%s' with uuid '%s' to version %s" % (title, uuid, version))
-    execute_non_query(self.env.get_db_cnx(),
-      "UPDATE report SET title=%s, author=%s, description=%s, query=%s " \
-      "WHERE id=%s", title, author, description, query, id)
-    execute_non_query(self.env.get_db_cnx(),
-      "UPDATE custom_report SET version=%s, maingroup=%s, subgroup=%s "
-      "WHERE id=%s", version, maingroup, subgroup, id)
-                     
+    self.log.debug("Updating report '%s' with to version %s" % (title, version))
+    self.execute_in_trans(("UPDATE report SET title=%s, author=%s, description=%s, query=%s " \
+                           "WHERE id=%s", (title, author, description, query, id)),
+                          ("UPDATE custom_report SET version=%s, maingroup=%s, subgroup=%s "
+                           "WHERE id=%s", (version, maingroup, subgroup, id)))
+    
   def add_report(self, title, author, description, query, uuid, version,
                  maingroup, subgroup="", force=False):
     """
@@ -115,73 +112,82 @@ class CustomReportManager:
                             maingroup, subgroup, version)
         return True
     except Exception, e:
-      self.log.error("CustomReportManager Exception: %s" % (e,));
+      self.log.error("CustomReportManager.add_report Exception: %s, %s" % (e,(title, author, uuid, version,
+                 maingroup, subgroup, force)));
     return False
   
   def get_report_by_uuid(self, uuid):
     sql = "SELECT report.id,report.title FROM custom_report "\
           "LEFT JOIN report ON custom_report.id=report.id "\
           "WHERE custom_report.uuid=%s"
-    return get_first_row(self.env.get_db_cnx(),sql,uuid)
+    return self.get_first_row(sql,uuid)
   
   def get_reports_by_group(self, group):
+    """Gets all of the reports for a given group"""
     db = self.env.get_db_cnx()
     cursor = db.cursor()
     rv = {}
     try:
-      cursor.execute("SELECT custom_report.subgroup,report.id,report.title "
+      cursor.execute("SELECT custom_report.subgroup,report.id,report.title, custom_report.version, custom_report.uuid "
                      "FROM custom_report "
                      "LEFT JOIN report ON custom_report.id=report.id "
                      "WHERE custom_report.maingroup=%s "
                      "ORDER BY custom_report.subgroup,custom_report.ordering", (group,))
-      for subgroup,id,title in cursor:
+      for subgroup, id, title, version, uuid in cursor:
         if not rv.has_key(subgroup):
           rv[subgroup] = { "title": subgroup,
                            "reports": [] }
-        rv[subgroup]["reports"].append( { "id": int(id), "title": title } )
+        rv[subgroup]["reports"].append( { "id": int(id), "title": title, "version":version, "uuid":uuid } )
     except:
       pass
     return rv
 
-# similar functions are found in dbhelper, but this file should be fairly
-# stand alone so that it can be copied and pasted around
-def get_first_row(db,sql,*params):
-  """ Returns the first row of the query results as a tuple of values (or None)"""
-  cur = db.cursor()
-  data = None;
-  try:
-    cur.execute(sql, params)
-    data = cur.fetchone();
-    db.commit();
-  except Exception, e:
-    mylog.error('There was a problem executing sql:%s \n \
-    with parameters:%s\nException:%s'%(sql, params, e));
-    db.rollback()
-  try:
-    db.close()
-  except:
-    pass
-  return data;
+  # similar functions are found in dbhelper, but this file should be fairly
+  # stand alone so that it can be copied and pasted around
+  def get_first_row(self, sql,*params):
+    """ Returns the first row of the query results as a tuple of values (or None)"""
+    db = self.env.get_db_cnx()
+    cur = db.cursor()
+    data = None;
+    try:
+      cur.execute(sql, params)
+      data = cur.fetchone();
+      db.commit();
+    except Exception, e:
+      self.log.error('There was a problem executing sql:%s \n \
+      with parameters:%s\nException:%s'%(sql, params, e));
+      db.rollback()
+    try:
+      db.close()
+    except:
+      pass
+    return data;
 
-def execute_non_query(db, sql, *params):
-  """Executes the sql on a given connection using the provided params"""
-  cur = db.cursor()
-  try:
-    cur.execute(sql, params)
-    db.commit()
-  except Exception, e:
-    mylog.error('There was a problem executing sql:%s \n \
-    with parameters:%s\nException:%s'%(sql, params, e));
-    db.rollback();
-  try:
-    db.close()
-  except:
-    pass
+  def get_scalar(self, sql, col=0, *params):
+    """ Gets a single value (in the specified column) from the result set of the query"""
+    data = self.get_first_row(self, sql, *params);
+    if data:
+      return data[col]
+    else:
+      return None;
 
-def get_scalar(db, sql, col=0, *params):
-  """ Gets a single value (in the specified column) from the result set of the query"""
-  data = get_first_row(db, sql, *params);
-  if data:
-    return data[col]
-  else:
-    return None;
+  def execute_in_trans(self, *args):
+    success = True
+    db = self.env.get_db_cnx()
+    cur = db.cursor()
+    try:
+      for sql, params in args:
+        cur.execute(sql, params)
+      db.commit()
+    except Exception, e:
+      self.log.error('There was a problem executing sql:%s \n \
+      with parameters:%s\nException:%s'%(sql, params, e));
+      db.rollback();
+      success = False
+    try:
+      db.close()
+    except:
+      pass
+    return success
+
+    
