@@ -87,13 +87,13 @@ from trac.util.datefmt import utc
 from trac.versioncontrol.api import NoSuchChangeset
 
 logfile = "/var/trac/commithook.log"
-LOG = True
+LOG = False
 
 if LOG:
     f = open (logfile,"w")
     f.write("Begin Log\n")
     f.close()
-    def log (s, *params):
+    def log (s, *params):http://www.bestbuy.com/site/olspage.jsp?skuId=8400517&st=lg+lcd&type=product&id=1179877503368
         f = open (logfile,"a")
         f.write(s % params);
         f.write("\n")
