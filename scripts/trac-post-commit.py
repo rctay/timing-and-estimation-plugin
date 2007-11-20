@@ -93,7 +93,7 @@ if LOG:
     f = open (logfile,"w")
     f.write("Begin Log\n")
     f.close()
-    def log (s, *params):http://www.bestbuy.com/site/olspage.jsp?skuId=8400517&st=lg+lcd&type=product&id=1179877503368
+    def log (s, *params)
         f = open (logfile,"a")
         f.write(s % params);
         f.write("\n")
