@@ -65,8 +65,9 @@ class CustomReportManager:
     
   def get_new_report_id (self):
     """find the next available report id """
-    return self.get_scalar("SELECT MAX(id) FROM report")+1
-
+    rtn = self.get_scalar("SELECT MAX(id) FROM report")
+    return (rtn and rtn+1) or 1
+    
   def get_max_ordering(self, maingroup, subgroup):
     """ Find the maximum ordering value used for this group of the custom_report table"""
     return self.get_scalar("SELECT MAX(ordering) FROM custom_report WHERE maingroup=%s AND subgroup=%s",
