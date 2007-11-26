@@ -22,12 +22,6 @@ with parameters:%s\nException:%s'%(sql, params, e));
     
     return (desc, data)
 
-def get_first_row(db,sql,*params):
-    rows = get_all (db, sql, *params)[1]
-    if rows:
-        return rows[0]
-    return None
-
 def execute_non_query(db, sql, *params):
     """Executes the query on the given project"""
     cur = db.cursor()
@@ -43,13 +37,39 @@ with parameters:%s\nException:%s'%(sql, params, e));
     except:
         pass
     
+def get_first_row(db, sql,*params):
+    """ Returns the first row of the query results as a tuple of values (or None)"""
+    cur = db.cursor()
+    data = None;
+    try:
+        cur.execute(sql, params)
+        data = cur.fetchone();
+        db.commit();
+    except Exception, e:
+        mylog.error('There was a problem executing sql:%s \n \
+        with parameters:%s\nException:%s'%(sql, params, e));
+        db.rollback()
+    try:
+        db.close()
+    except:
+        pass
+    return data;
+
+def get_scalar(db, sql, col=0, *params):
+    """ Gets a single value (in the specified column) from the result set of the query"""
+    data = get_first_row(db, sql, *params);
+    if data:
+        return data[col]
+    else:
+        return None;
+
 def execute_in_trans(db, *args):
     success = True
     cur = db.cursor()
     try:
         for sql, params in args:
             cur.execute(sql, params)
-            db.commit()
+        db.commit()
     except Exception, e:
         mylog.error('There was a problem executing sql:%s \n \
         with parameters:%s\nException:%s'%(sql, params, e));
@@ -60,27 +80,6 @@ def execute_in_trans(db, *args):
     except:
         pass
     return success
-
-
-def get_scalar(db, sql, col=0, *params):
-    cur = db.cursor()
-    data = None;
-    try:
-        cur.execute(sql, params)
-        data = cur.fetchone();
-        db.commit();
-    except Exception, e:
-        mylog.error('There was a problem executing sql:%s \n \
-with parameters:%s\nException:%s'%(sql, params, e));
-        db.rollback()
-    try:
-        db.close()
-    except:
-        pass
-    if data:
-        return data[col]
-    else:
-        return None;
 
 def db_table_exists(db, table):
     sql = "SELECT * FROM %s LIMIT 1" % table;
