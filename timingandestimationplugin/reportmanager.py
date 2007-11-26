@@ -166,7 +166,7 @@ class CustomReportManager:
 
   def get_scalar(self, sql, col=0, *params):
     """ Gets a single value (in the specified column) from the result set of the query"""
-    data = self.get_first_row(self, sql, *params);
+    data = self.get_first_row(sql, *params);
     if data:
       return data[col]
     else:

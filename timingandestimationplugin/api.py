@@ -88,6 +88,7 @@ class TimeTrackingSetupParticipant(Component):
             );
             """
             dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+
             
             print "Creating report_version table"
             sql = """
@@ -121,9 +122,7 @@ class TimeTrackingSetupParticipant(Component):
         #version 6 upgraded reports  
                 
         # This statement block always goes at the end this method
-        sql = "UPDATE system SET value=%s WHERE name=%s"
-        dbhelper.execute_non_query(self.env.get_db_cnx(),
-                                   sql, self.db_version, self.db_version_key)
+        dbhelper.set_system_value(self.env, self.db_version_key, self.db_version)
         self.db_installed_version = self.db_version
     
     def reports_need_upgrade(self):
@@ -230,6 +229,12 @@ class TimeTrackingSetupParticipant(Component):
         performed, `False` otherwise.
 
         """
+        self.log.debug("NEEDS UP?: sys:%s, rep:%s, stats:%s, fields:%s, man:%s" % \
+                       ((self.system_needs_upgrade()),
+                        (self.reports_need_upgrade()),
+                        (self.have_statuses_changed()),
+                        (self.ticket_fields_need_upgrade()),
+                        (self.needs_user_man())))
         return (self.system_needs_upgrade()) or \
                (self.reports_need_upgrade()) or \
                (self.have_statuses_changed()) or \
@@ -279,4 +284,3 @@ class TimeTrackingSetupParticipant(Component):
         sys_stats.symmetric_difference_update(s)
         sys_stats.difference_update(['', None])
         return len(sys_stats) > 0
-
