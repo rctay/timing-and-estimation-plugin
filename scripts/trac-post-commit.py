@@ -93,9 +93,9 @@ if LOG:
     f = open (logfile,"w")
     f.write("Begin Log\n")
     f.close()
-    def log (s, *params)
+    def log (s, *params):
         f = open (logfile,"a")
-        f.write(s % params);
+        f.write(s % params)
         f.write("\n")
         f.close()
 else:
