@@ -24,6 +24,29 @@
 # IN THE SOFTWARE.
 # ----------------------------------------------------------------------------
 
+
+
+
+# Changes for the Timing and Estimation plugin
+#
+# "Blah refs #12 (1)" will add 1h to the spent time for issue #12
+# "Blah refs #12 (spent 1.5)" will add 1h to the spent time for issue #12
+#
+# As above it is possible to use complicated messages:
+#
+# "Changed blah and foo to do this or that. Fixes #10 (1) and #12 (2), and refs #13 (0.5)."
+#
+# This will close #10 and #12, and add a note to #13 and also add 1h spent time to #10,
+# add 2h spent time to #12 and add 30m spent time to #13.
+#
+# Note that:
+#     (spent 2), (sp 2) or simply (2) may be used for spent
+#     ' ', ',', '&' or 'and' may be used references
+#
+
+
+
+
 # This Subversion post-commit hook script is meant to interface to the
 # Trac (http://www.edgewall.com/products/trac/) issue tracking/wiki/etc 
 # system.
