@@ -24,6 +24,8 @@ def save_custom_field_value( db, ticket_id, field, value ):
         cursor.execute("INSERT INTO ticket_custom (ticket,name, "
                        "value) VALUES(%s,%s,%s)",
                        (ticket_id, field, value))
+    db.commit()
+    
         
 def save_ticket_change( db, ticket_id, author, change_time, field, oldvalue, newvalue, log):
     if type(change_time) == datetime.datetime:
@@ -41,6 +43,7 @@ def save_ticket_change( db, ticket_id, author, change_time, field, oldvalue, new
         cursor.execute("""INSERT INTO ticket_change  (ticket,time,author,field, oldvalue, newvalue) 
                         VALUES(%s, %s, %s, %s, %s, %s)""",
                        (ticket_id, change_time, author, field, oldvalue, newvalue))
+    db.commit()
 
 class TimeTrackingTicketObserver(Component):
     implements(ITicketChangeListener)

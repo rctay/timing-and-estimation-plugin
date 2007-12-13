@@ -99,7 +99,8 @@ def db_table_exists(db, table):
     return has_table
 
 def get_column_as_list(db, sql, col=0, *params):
-    return [valueList[col] for valueList in get_all(db, sql, *params)[1]]
+    data = get_all(db, sql, *params)[1] or ()
+    return [valueList[col] for valueList in data]
 
 def get_system_value(db, key):
     return get_scalar(db, "SELECT value FROM system WHERE name=%s", 0, key)
