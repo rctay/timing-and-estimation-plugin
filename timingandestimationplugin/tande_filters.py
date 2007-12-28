@@ -8,8 +8,9 @@ class RowFilter(object):
     """A genshi filter that operates on table rows, completely hiding any that
     are in the billing_reports table."""
 
-    def __init__(self, env):
-        cur = env.get_db_cnx().cursor()
+    def __init__(self, comp):
+        self.component = comp
+        cur = comp.env.get_db_cnx().cursor()
         try:
             cur.execute("SELECT id FROM custom_report")
             self.billing_reports = set(x[0] for x in cur.fetchall())
@@ -18,8 +19,7 @@ class RowFilter(object):
             # TimingAndEstimationPlugin isn't installed), silently continue
             # without hiding anything.
             self.billing_reports = set()
-
-        print 'self.billing_reports=', self.billing_reports
+        self.component.log.debug('self.billing_reports= %r' % self.billing_reports)
 
     def __call__(self, row_stream):
         events = list(row_stream)
@@ -76,7 +76,7 @@ class ReportsFilter(Component):
     def filter_stream(self, req, method, filename, stream, data):
         return stream | Transformer(
             '//table[@class="listing reports"]/tbody/tr'
-            ).apply(FilterTransformation(RowFilter(self.env)))
+            ).apply(FilterTransformation(RowFilter(self)))
 
 class TotalHoursFilter(Component):
     """Disable editing of the Total Hours field so that we don't need Javascript."""
@@ -97,5 +97,5 @@ class TotalHoursFilter(Component):
         value = Stream(field_stream).select('@value').render()
 
         for kind,data,pos in tag.span(value, id="field-totalhours").generate():
-                yield kind,data,pos
+            yield kind,data,pos
 
