@@ -10,7 +10,7 @@ def get_statuses(config, env):
     status_sql = """
     SELECT DISTINCT status FROM ticket WHERE status <> '' ;
     """
-    stats |= Set(dbhelper.get_column_as_list(env.get_db_cnx(), status_sql))
+    stats |= Set(dbhelper.get_column_as_list(status_sql))
     stats.difference_update(['', None])
     return stats
 

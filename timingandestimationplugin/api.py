@@ -52,12 +52,13 @@ class TimeTrackingSetupParticipant(Component):
     def __init__(self):
         # Setup logging
         dbhelper.mylog = self.log
+        dbhelper.env = self.env
         self.statuses_key = 'T&E-statuses'
         self.db_version_key = 'TimingAndEstimationPlugin_Db_Version'
         self.db_version = 6
         # Initialise database schema version tracking.
         self.db_installed_version = dbhelper.get_system_value(\
-            self.env.get_db_cnx(),self.db_version_key) or 0
+            self.db_version_key) or 0
 
     def environment_created(self):
         """Called when a new Trac environment is created."""
@@ -71,8 +72,8 @@ class TimeTrackingSetupParticipant(Component):
     def do_db_upgrade(self):
         # Legacy support hack (supports upgrades from 0.1.6 to 0.1.7)
         if self.db_installed_version == 0:
-            bill_date = dbhelper.db_table_exists(self.env.get_db_cnx(), 'bill_date');
-            report_version = dbhelper.db_table_exists(self.env.get_db_cnx(), 'report_version');
+            bill_date = dbhelper.db_table_exists('bill_date');
+            report_version = dbhelper.db_table_exists('report_version');
             if bill_date and report_version:
                 self.db_installed_version = 1
         # End Legacy support hack
@@ -87,7 +88,7 @@ class TimeTrackingSetupParticipant(Component):
             str_value text
             );
             """
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+            dbhelper.execute_non_query( sql)
 
             
             print "Creating report_version table"
@@ -98,14 +99,14 @@ class TimeTrackingSetupParticipant(Component):
             UNIQUE (report, version)
             );
             """
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+            dbhelper.execute_non_query(sql)
 
         if self.db_installed_version < 4:
             print "Upgrading report_version table to v4"
             sql ="""
             ALTER TABLE report_version ADD COLUMN tags varchar(1024) null;
             """
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+            dbhelper.execute_non_query(sql)
 
         if self.db_installed_version < 5:
             # In this version we convert to using reportmanager.py
@@ -114,15 +115,15 @@ class TimeTrackingSetupParticipant(Component):
             print "Dropping report_version table"
             sql = "DELETE FROM report " \
                   "WHERE author=%s AND id IN (SELECT report FROM report_version)"
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql, 'Timing and Estimation Plugin')
+            dbhelper.execute_non_query(sql, 'Timing and Estimation Plugin')
 
             sql = "DROP TABLE report_version"
-            dbhelper.execute_non_query(self.env.get_db_cnx(), sql)
+            dbhelper.execute_non_query(sql)
             
         #version 6 upgraded reports  
                 
         # This statement block always goes at the end this method
-        dbhelper.set_system_value(self.env, self.db_version_key, self.db_version)
+        dbhelper.set_system_value(self.db_version_key, self.db_version)
         self.db_installed_version = self.db_version
     
     def reports_need_upgrade(self):
@@ -201,8 +202,7 @@ class TimeTrackingSetupParticipant(Component):
         self.config.save();
 
     def needs_user_man(self):
-        maxversion = dbhelper.get_scalar(self.env.get_db_cnx(),
-                                         "SELECT MAX(version) FROM wiki WHERE name like %s", 0,
+        maxversion = dbhelper.get_scalar("SELECT MAX(version) FROM wiki WHERE name like %s", 0,
                                          user_manual_wiki_title)
         if (not maxversion) or maxversion < user_manual_version:
             return True
@@ -215,7 +215,7 @@ class TimeTrackingSetupParticipant(Component):
         INSERT INTO wiki (name,version,time,author,ipnr,text,comment,readonly)
         VALUES ( %s, %s, %s, 'Timing and Estimation Plugin', '127.0.0.1', %s,'',0)
         """
-        dbhelper.execute_non_query(self.env.get_db_cnx(),sql,
+        dbhelper.execute_non_query(sql,
                                    user_manual_wiki_title,
                                    user_manual_version,
                                    when,
@@ -261,7 +261,7 @@ class TimeTrackingSetupParticipant(Component):
         # reports
         stats = get_statuses(self.config, self.env)
         val = ','.join(list(stats))
-        dbhelper.set_system_value(self.env, self.statuses_key, val)
+        dbhelper.set_system_value(self.statuses_key, val)
         
         if self.ticket_fields_need_upgrade():
             p("Upgrading fields")
@@ -276,7 +276,7 @@ class TimeTrackingSetupParticipant(Component):
         compare them to the ones we have now (ignoring '' and None),
         if we have different ones, throw return true
         """
-        s = dbhelper.get_system_value(self.env.get_db_cnx(), self.statuses_key)
+        s = dbhelper.get_system_value(self.statuses_key)
         if not s:
             return True
         sys_stats = get_statuses(self.config, self.env)

@@ -36,7 +36,7 @@ class TimingEstimationAndBillingPage(Component):
         INSERT INTO bill_date (time, set_when, str_value)
         VALUES (%s, %s, %s)
         """
-        dbhelper.execute_non_query(self.env.get_db_cnx(), sql, when, now, strwhen)
+        dbhelper.execute_non_query(sql, when, now, strwhen)
 
     
 
@@ -64,10 +64,11 @@ class TimingEstimationAndBillingPage(Component):
         SELECT DISTINCT time as value, str_value as text
         FROM bill_date
         """
-        rs = dbhelper.get_result_set(self.env.get_db_cnx(), billing_time_sql)
-        for (value, text) in rs.rows:
-            billing_info = {'text':text , 'value':value}
-            billing_dates.extend([billing_info])
+        rs = dbhelper.get_result_set(billing_time_sql)
+        if rs:
+            for (value, text) in rs.rows:
+                billing_info = {'text':text , 'value':value}
+                billing_dates.extend([billing_info])
         #self.log.debug("bill-dates: %s"%billing_dates)
         data['billing_info']["billdates"] = billing_dates
 
