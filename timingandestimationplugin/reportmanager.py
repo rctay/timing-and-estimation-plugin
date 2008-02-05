@@ -101,6 +101,7 @@ class CustomReportManager:
     """
     # First check to see if we can load an existing version of this report
     (id, currentversion) = self.get_report_id_and_version(uuid)
+    self.log.error("add_report %s (ver:%s) | id: %s currentversion: %s" % (uuid , version, id, currentversion))
     try:
       if not id:
         next_id = self.get_new_report_id()
@@ -115,6 +116,7 @@ class CustomReportManager:
     except Exception, e:
       self.log.error("CustomReportManager.add_report Exception: %s, %s" % (e,(title, author, uuid, version,
                  maingroup, subgroup, force)));
+    self.log.debug("report %s not upgraded (a better version already exists)" % uuid)
     return False
   
   def get_report_by_uuid(self, uuid):

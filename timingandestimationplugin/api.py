@@ -137,7 +137,19 @@ class TimeTrackingSetupParticipant(Component):
         for key, report_group in db_report_hash.items():
             for report in report_group['reports']:
                 db_reports.add((report['uuid'], report['version']))
-        return len(db_reports.symmetric_difference(py_reports)) > 0
+        #diff = db_reports.symmetric_difference(py_reports)
+
+        # the things in the python reports that are not in the database
+        diff = py_reports.difference(db_reports)
+        for py in diff.copy():
+            for db in db_reports:
+                #if we have the same report and the db has a higher version
+                # remove it from the difference
+                if db[0] == py[0] && db[1] >= py[1] :
+                    diff.remove(py);
+        if len(diff) > 0:
+            self.log.debug ("T&E needs upgrades for the following reports: %s" % diff )
+        return len(diff) > 0
         
     def do_reports_upgrade(self, force=False):
         self.log.debug( "Beginning Reports Upgrade");
