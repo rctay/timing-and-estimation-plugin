@@ -145,7 +145,7 @@ class TimeTrackingSetupParticipant(Component):
             for db in db_reports:
                 #if we have the same report and the db has a higher version
                 # remove it from the difference
-                if db[0] == py[0] && db[1] >= py[1] :
+                if db[0] == py[0] and db[1] >= py[1] :
                     diff.remove(py);
         if len(diff) > 0:
             self.log.debug ("T&E needs upgrades for the following reports: %s" % diff )
