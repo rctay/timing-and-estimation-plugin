@@ -148,7 +148,7 @@ ORDER BY author,  _ord ASC, time
     """
     },#END Hours Per Developer
 ]
-th_version =13
+th_version =14
 ticket_hours_reports = [
 {
     "uuid":"8d785cdb-dcf5-43c9-b2a6-216997b0011a",
@@ -237,10 +237,10 @@ ORDER BY  _ord ASC, ticket
     "sql": """
 SELECT __color__,  __style__,  ticket, summary, component ,version, severity,
  milestone, status, owner, Estimated_work, Total_work, billable
---,created,  modified,         -- ## Dates are formatted
+--##,created,  modified,         -- ## Dates are formatted
 ,_description_
--- _changetime,
--- _reporter
+--## _changetime,
+--## _reporter
 ,_ord
 
 FROM (
