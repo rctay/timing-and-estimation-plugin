@@ -13,7 +13,7 @@ class RowFilter(object):
         cur = comp.env.get_db_cnx().cursor()
         try:
             cur.execute("SELECT id FROM custom_report")
-            self.billing_reports = set(x[0] for x in cur.fetchall())
+            self.billing_reports = set([x[0] for x in cur.fetchall()])
         except Exception, e:
             # if we can't get the billing reports (e.g. the
             # TimingAndEstimationPlugin isn't installed), silently continue
