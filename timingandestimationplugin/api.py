@@ -174,14 +174,17 @@ class TimeTrackingSetupParticipant(Component):
     def ticket_fields_need_upgrade(self):
         ticket_custom = "ticket-custom"
         return not ( self.config.get( ticket_custom, "totalhours" ) and \
-                     self.config.get( ticket_custom, "billable" ) and \
-                     (self.config.get( ticket_custom, "billable" ) == "checkbox") and \
+                     
+                     #self.config.get( ticket_custom, "billable" ) and \
+                     #self.config.get( ticket_custom, "billable.order") and \
+                     #(self.config.get( ticket_custom, "billable" ) == "checkbox") and \
+                     #(not self.config.get( ticket_custom, "lastbilldate" )) and \
+
                      self.config.get( ticket_custom, "hours" ) and \
-                     (not self.config.get( ticket_custom, "lastbilldate" )) and \
                      self.config.get( ticket_custom, "totalhours.order") and \
                      self.config.get( ticket_custom, "hours.order") and \
                      self.config.get( ticket_custom, "estimatedhours.order") and \
-                     self.config.get( ticket_custom, "billable.order") and \
+
                      self.config.get( ticket_custom, "estimatedhours"))
     
     def do_ticket_field_upgrade(self):
