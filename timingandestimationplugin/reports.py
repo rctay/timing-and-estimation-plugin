@@ -8,7 +8,7 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "version":18,
+    "version":19,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, ticket,
 newvalue as Work_added, author, time as datetime, _ord
@@ -47,7 +47,7 @@ FROM(
       AND billable.value in ($BILLABLE, $UNBILLABLE)
       AND ticket_change.time >= $STARTDATE
       AND ticket_change.time < $ENDDATE
-  GROUP By t.id
+  GROUP By t.id, t.summary
 )  as tbl
 ORDER BY __ticket__, _ord ASC, time ASC
 
