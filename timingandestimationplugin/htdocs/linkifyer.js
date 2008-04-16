@@ -99,7 +99,7 @@
 		 ? "UNBILLABLE=0" : "UNBILLABLE=1");
 
       for(var i=0, f = null ; f = statusfields[i] ; i++){
-	 val = f.name.toUpperCase()+"=";
+	 val = f.name.toUpperCase().replace("_","", "g").replace(" ","","g")+"=";
 	 if(f.getval()){
 	    val += f.name
 	 }

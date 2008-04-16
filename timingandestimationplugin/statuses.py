@@ -3,7 +3,7 @@ from trac.ticket.default_workflow import get_workflow_config
 from sets import Set
 
 def status_variables(statuses):
-    return ', '.join(['$'+i.upper() for i in list(statuses)])
+    return ', '.join(['$'+i.upper().replace("_","").replace(" ","") for i in list(statuses)])
                      
 def get_statuses(config, env):
     stats = get_statuses_from_workflow(config)

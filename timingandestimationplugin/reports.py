@@ -199,7 +199,7 @@ FROM (
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024))  as owner,
+         AS CHAR(512))  as owner,
          SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
       ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
          SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
@@ -237,10 +237,10 @@ ORDER BY  _ord ASC, ticket
     "sql": """
 SELECT __color__,  __style__,  ticket, summary, component ,version, severity,
  milestone, status, owner, Estimated_work, Total_work, billable
---##,created,  modified,         -- ## Dates are formatted
+-- ## ,created,  modified,         -- ## Dates are formatted
 ,_description_
---## _changetime,
---## _reporter
+-- ## _changetime,
+-- ## _reporter
 ,_ord
 
 FROM (
@@ -287,7 +287,7 @@ SELECT '1' AS __color__,
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024))  as owner,
+         AS CHAR(512))  as owner,
        SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
@@ -374,7 +374,7 @@ SELECT '1' AS __color__,
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024))  as owner,
+         AS CHAR(512))  as owner,
        SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
@@ -461,7 +461,7 @@ SELECT '1' AS __color__,
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024))  as owner,
+         AS CHAR(512))  as owner,
        SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
@@ -547,7 +547,7 @@ SELECT '1' AS __color__,
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024)) as owner,
+         AS CHAR(512)) as owner,
        SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
@@ -635,7 +635,7 @@ SELECT '1' AS __color__,
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) - 
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
          ELSE CAST( totalhours.value AS DECIMAL ) END)
-         AS VARCHAR(1024)) as owner,
+         AS CHAR(512)) as owner,
        SUM(CASE WHEN EstimatedHours.value = '' OR EstimatedHours.value IS NULL THEN 0
          ELSE CAST( EstimatedHours.value AS DECIMAL ) END) as Estimated_work,
        SUM(CASE WHEN totalhours.value = '' OR totalhours.value IS NULL THEN 0
