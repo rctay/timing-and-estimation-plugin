@@ -168,16 +168,16 @@ support_cmds_pattern = '|'.join(_supported_cmds.keys())
 ticket_command =  (r'(?P<action>(?:%s))[ ]*'
                    '(?P<ticket>%s(?:(?:[, &]*|[ ]?and[ ]?)%s)*)' %
                    (support_cmds_pattern,ticket_reference, ticket_reference))
-command_re = re.compile(ticket_command)
-ticket_re = re.compile(ticket_prefix + '([0-9]+)')
+command_re = re.compile(ticket_command, re.IGNORECASE)
+ticket_re = re.compile(ticket_prefix + '([0-9]+)', re.IGNORECASE)
 
 
 if options.envelope:
     ticket_command = r'\%s%s\%s' % (options.envelope[0], ticket_command,
                                     options.envelope[1])
     
-command_re = re.compile(ticket_command)
-ticket_re = re.compile(ticket_prefix + '([0-9]+)'+time_pattern)
+command_re = re.compile(ticket_command, re.IGNORECASE)
+ticket_re = re.compile(ticket_prefix + '([0-9]+)'+time_pattern, re.IGNORECASE)
 
 class CommitHook:
 
