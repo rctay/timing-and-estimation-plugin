@@ -7,7 +7,7 @@ PACKAGE = 'timingandestimationplugin'
 setup(name=PACKAGE,
       description='Plugin to make Trac support time estimation and tracking',
       keywords='trac plugin estimation timetracking',
-      version='0.6.5',
+      version='0.6.6',
       url='http://www.trac-hacks.org/wiki/TimingAndEstimationPlugin',
       license='http://www.opensource.org/licenses/mit-license.php',
       author='Russ Tyndall at Acceleration.net',
@@ -34,7 +34,7 @@ setup(name=PACKAGE,
 ## Alessio Massaro
 ## trac-hacks user: masariello
 ## Helped Get Reports working in postgres
-## and started moving toward generic work 
+## and started moving toward generic work
 ## rather than hours
 
 ## kkurzweil@lulu.com

@@ -4,13 +4,14 @@ from sets import Set
 
 def status_variables(statuses):
     return ', '.join(['$'+i.upper().replace("_","").replace(" ","") for i in list(statuses)])
-                     
-def get_statuses(config, env):
+
+def get_statuses(com):
+    config = com.config
     stats = get_statuses_from_workflow(config)
     status_sql = """
     SELECT DISTINCT status FROM ticket WHERE status <> '' ;
     """
-    stats |= Set(dbhelper.get_column_as_list(status_sql))
+    stats |= Set(dbhelper.get_column_as_list(com, status_sql))
     stats.difference_update(['', None])
     return stats
 
