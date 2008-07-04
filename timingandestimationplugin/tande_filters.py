@@ -2,6 +2,7 @@ from trac.web.api import ITemplateStreamFilter
 from trac.core import *
 from genshi.core import *
 from genshi.builder import tag
+from sets import Set as set
 from genshi.filters.transform import Transformer
 
 class RowFilter(object):
