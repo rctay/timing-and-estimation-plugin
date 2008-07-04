@@ -78,6 +78,15 @@ class ReportsFilter(Component):
             '//table[@class="listing reports"]/tbody/tr'
             ).apply(FilterTransformation(RowFilter(self)))
 
+
+
+#@staticmethod
+def disable_field(field_stream):
+    value = Stream(field_stream).select('@value').render()
+    
+    for kind,data,pos in tag.span(value, id="field-totalhours").generate():
+        yield kind,data,pos
+
 class TotalHoursFilter(Component):
     """Disable editing of the Total Hours field so that we don't need Javascript."""
     implements(ITemplateStreamFilter)
@@ -89,13 +98,9 @@ class TotalHoursFilter(Component):
     def filter_stream(self, req, method, filename, stream, data):
         return stream | Transformer(
             '//input[@id="field-totalhours" and @type="text" and @name="field_totalhours"]'
-            ).apply(FilterTransformation(self.disable_field))
+            ).apply(FilterTransformation(disable_field))
 
 
-    @staticmethod
-    def disable_field(field_stream):
-        value = Stream(field_stream).select('@value').render()
 
-        for kind,data,pos in tag.span(value, id="field-totalhours").generate():
-            yield kind,data,pos
+
 

@@ -101,7 +101,7 @@ class CustomReportManager:
     """
     # First check to see if we can load an existing version of this report
     (id, currentversion) = self.get_report_id_and_version(uuid)
-    self.log.error("add_report %s (ver:%s) | id: %s currentversion: %s" % (uuid , version, id, currentversion))
+    self.log.debug("add_report %s (ver:%s) | id: %s currentversion: %s" % (uuid , version, id, currentversion))
     try:
       if not id:
         next_id = self.get_new_report_id()
