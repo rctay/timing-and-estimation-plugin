@@ -83,6 +83,12 @@ class CustomReportManager:
                           ("INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) " \
                            "VALUES (%s, %s, %s, %s, %s, %s)",
                            (next_id, uuid, maingroup, subgroup, version, ordering)))
+    self.log.debug("Attempting to increment sequence")
+    try:
+      self.execute_in_trans(("SELECT nextval('report_id_seq');",[]));
+      self.log.debug("Sequence updated");
+    except:
+      self.log.debug("Sequence failed to update, perhaps you are not running postgres?");
 
   def _update_report (self, id, title, author, description, query,
                       maingroup, subgroup, version):
