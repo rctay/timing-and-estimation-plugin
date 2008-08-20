@@ -51,6 +51,7 @@ class TimeTrackingTicketObserver(Component):
         pass
 
     def watch_hours(self, ticket):
+        
         def readTicketValue(name, tipe, default=0):
             if ticket.values.has_key(name):        
                 return tipe(ticket.values[name] or default)
@@ -61,9 +62,10 @@ class TimeTrackingTicketObserver(Component):
                 if val:
                     return tipe(val[2] or default)
                 return default
-
-        hours = readTicketValue("hours", float)
-        totalHours = readTicketValue("totalhours", float)
+        #some european countries use , as the decimal separator
+        convertfloat = lambda x: float(x.replace(',','.'))
+        hours = readTicketValue("hours", convertfloat)
+        totalHours = readTicketValue("totalhours", convertfloat)
 
         if not hours == 0:
             db = self.env.get_db_cnx()
