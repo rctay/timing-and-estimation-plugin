@@ -28,7 +28,11 @@ def save_custom_field_value( db, ticket_id, field, value ):
     
 DONTUPDATE = "DONTUPDATE"
 
-def save_ticket_change( db, ticket_id, author, change_time, field, oldvalue, newvalue, log):
+def save_ticket_change( db, ticket_id, author, change_time, field, oldvalue, newvalue, log, dontinsert=False):
+    """tries to save a ticket change, 
+ 
+       dontinsert means do not add the change if it didnt already exist 
+    """
     if type(change_time) == datetime.datetime:
         change_time = to_timestamp(change_time)
     cursor = db.cursor();
@@ -49,9 +53,10 @@ def save_ticket_change( db, ticket_id, author, change_time, field, oldvalue, new
     else:
         if oldvalue == DONTUPDATE:
             oldvalue = '0'
-        cursor.execute("""INSERT INTO ticket_change  (ticket,time,author,field, oldvalue, newvalue) 
+        if not dontinsert:
+            cursor.execute("""INSERT INTO ticket_change  (ticket,time,author,field, oldvalue, newvalue) 
                         VALUES(%s, %s, %s, %s, %s, %s)""",
-                       (ticket_id, change_time, author, field, oldvalue, newvalue))
+                           (ticket_id, change_time, author, field, oldvalue, newvalue))
     db.commit()
 
 class TimeTrackingTicketObserver(Component):
@@ -85,6 +90,7 @@ class TimeTrackingTicketObserver(Component):
         #self.log.debug("changelog:"+str(cl))
             
         savedTime = False
+        most_recent_change = None
         if cl:
             most_recent_change = cl[-1];
             change_time = most_recent_change[0]
@@ -96,12 +102,14 @@ class TimeTrackingTicketObserver(Component):
             save_ticket_change( db, ticket_id, author, change_time, "hours", str(0.0), str(hours), self.log)
             
         estimatedhours = readTicketValue("estimatedhours", convertfloat)
+        self.log.debug("changelog:"+str(cl))
+        self.log.debug("Estimated:"+str(estimatedhours))    
         db = self.env.get_db_cnx()
-        save_ticket_change( db, ticket_id, author, change_time, "estimatedhours", DONTUPDATE, str(hours), self.log)
+        save_ticket_change( db, ticket_id, author, change_time, "estimatedhours", DONTUPDATE, str(hours), self.log, True)
         save_custom_field_value( db, ticket.id, "estimatedhours", str(estimatedhours))
         db.commit();
 
-        if not hours == 0:
+        if not hours == 0:                
             newtotal = str(totalHours+hours)
             if not savedTime:
                 save_ticket_change( db, ticket_id, author, change_time, "hours", str('0'), str(hours), self.log)
