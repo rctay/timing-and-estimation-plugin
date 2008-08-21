@@ -77,7 +77,7 @@ class TimeTrackingTicketObserver(Component):
                     return tipe(val[2] or default)
                 return default
         #some european countries use , as the decimal separator
-        convertfloat = lambda x: float(x.replace(',','.'))
+        convertfloat = lambda x: float(str(x).replace(',','.'))
         hours = readTicketValue("hours", convertfloat)
         totalHours = readTicketValue("totalhours", convertfloat)
 
