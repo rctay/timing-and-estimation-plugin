@@ -76,6 +76,7 @@ class TimeTrackingTicketObserver(Component):
                 if val:
                     return tipe(val[2] or default)
                 return default
+
         #some european countries use , as the decimal separator
         convertfloat = lambda x: float(str(x).replace(',','.'))
         hours = readTicketValue("hours", convertfloat)
@@ -84,12 +85,12 @@ class TimeTrackingTicketObserver(Component):
         db = self.env.get_db_cnx()
         ticket_id = ticket.id
         cl = ticket.get_changelog()
-        #self.log.debug("hours: "+str(hours ));
+        
+        self.log.debug("found hours: "+str(hours ));
         #self.log.debug("Dir_ticket:"+str(dir(ticket)))
         #self.log.debug("ticket.values:"+str(ticket.values))
-        #self.log.debug("changelog:"+str(cl))
-            
-        savedTime = False
+        #self.log.debug("changelog:"+str(cl)) 
+    
         most_recent_change = None
         if cl:
             most_recent_change = cl[-1];
@@ -98,24 +99,28 @@ class TimeTrackingTicketObserver(Component):
         else:
             change_time = ticket.time_created
             author = ticket.values["reporter"]
-            savedTime = True
-            save_ticket_change( db, ticket_id, author, change_time, "hours", str(0.0), str(hours), self.log)
             
-        estimatedhours = readTicketValue("estimatedhours", convertfloat)
-        self.log.debug("changelog:"+str(cl))
-        self.log.debug("Estimated:"+str(estimatedhours))    
+
+        ## SAVE estimated hour
+        estimatedhours = readTicketValue("estimatedhours", convertfloat)        
+        self.log.debug("found Estimated hours:"+str(estimatedhours))
         db = self.env.get_db_cnx()
-        save_ticket_change( db, ticket_id, author, change_time, "estimatedhours", DONTUPDATE, str(hours), self.log, True)
+        save_ticket_change( db, ticket_id, author, change_time, "estimatedhours", DONTUPDATE, str(estimatedhours), self.log, True)
         save_custom_field_value( db, ticket.id, "estimatedhours", str(estimatedhours))
         db.commit();
+        #######################
 
+
+        ## If our hours changed 
         if not hours == 0:                
             newtotal = str(totalHours+hours)
-            if not savedTime:
-                save_ticket_change( db, ticket_id, author, change_time, "hours", str('0'), str(hours), self.log)
+            save_ticket_change( db, ticket_id, author, change_time, "hours", '0.0', str(hours), self.log)
             save_ticket_change( db, ticket_id, author, change_time, "totalhours", str(totalHours), str(newtotal), self.log)
             save_custom_field_value( db, ticket_id, "hours", '0')
             save_custom_field_value( db, ticket_id, "totalhours", str(newtotal) )            
+        ########################
+
+    # END of watch_hours
 
     def ticket_created(self, ticket):
         """Called when a ticket is created."""
