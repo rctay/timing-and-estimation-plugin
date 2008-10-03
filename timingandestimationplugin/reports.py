@@ -8,7 +8,7 @@ billing_reports = [
         {
     "uuid":"b24f08c0-d41f-4c63-93a5-25e18a8513c2",
     "title":"Ticket Work Summary",
-    "version":20,
+    "version":21,
     "sql":"""
 SELECT __ticket__ as __group__, __style__, ticket,
 newvalue as Work_added, author, time as datetime, _ord
@@ -56,7 +56,7 @@ ORDER BY __ticket__, _ord ASC, time ASC
         {
     "uuid":"af13564f-0e36-4a17-96c0-632dc68d8d14",
     "title":"Milestone Work Summary",
-    "version":17,
+    "version":18,
     "sql":"""
 
 SELECT
@@ -80,7 +80,7 @@ FROM(
 
   UNION
 
-  SELECT 'background-color:#DFE;' as __style__, NULL as ticket,
+  SELECT 'background-color:#DFE;' as __style__, 0 as ticket,
     sum( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
          ELSE CAST( newvalue AS DECIMAL ) END) as newvalue, 'Total work done' as summary,
     NULL as time, t.milestone as milestone, 1 as _ord
@@ -105,7 +105,7 @@ ORDER BY milestone,  _ord ASC, ticket, time
     {
     "uuid":"7bd4b0ce-da6d-4b11-8be3-07e65b540d99",
     "title":"Developer Work Summary",
-    "version":17,
+    "version":18,
     "sql":"""
 SELECT author as __group__,__style__, ticket, summary,
   newvalue as Work_added, time as datetime, _ord
@@ -127,7 +127,7 @@ FROM(
 
   UNION
 
-  SELECT 'background-color:#DFE;' as __style__, author, NULL as ticket,
+  SELECT 'background-color:#DFE;' as __style__, author, 0 as ticket,
     Null as summary,
     SUM( CASE WHEN newvalue = '' OR newvalue IS NULL THEN 0
          ELSE CAST( newvalue AS DECIMAL ) END) as newvalue,
@@ -148,7 +148,7 @@ ORDER BY author,  _ord ASC, time
     """
     },#END Hours Per Developer
 ]
-th_version =15
+th_version =16
 ticket_hours_reports = [
 {
     "uuid":"8d785cdb-dcf5-43c9-b2a6-216997b0011a",
@@ -191,7 +191,7 @@ FROM (
 
   SELECT '1' AS __color__,
          'background-color:#DFE;' as __style__,
-         NULL as ticket, 'Total' AS summary,
+         0 as ticket, 'Total' AS summary,
          NULL as component,NULL as version, NULL as severity, NULL as  milestone,
          'Time Remaining: ' as status,
          CAST(
@@ -279,7 +279,7 @@ UNION
 
 SELECT '1' AS __color__,
        'background-color:#DFE;' as __style__,
-       NULL as ticket, 'Total' AS summary,
+       0 as ticket, 'Total' AS summary,
        NULL as component,NULL as version, NULL as severity, NULL as  milestone,
        'Time Remaining: ' as status,
        CAST(
@@ -366,7 +366,7 @@ UNION
 SELECT '1' AS __color__,
        t.component AS __group__,
        'background-color:#DFE;' as __style__,
-       NULL as ticket, 'Total work' AS summary,
+       0 as ticket, 'Total work' AS summary,
        t.component as __component__, NULL as version, NULL as severity,
        NULL as  milestone, 'Time Remaining: ' as status,
        CAST(
@@ -453,7 +453,7 @@ UNION
 SELECT '1' AS __color__,
        t.component AS __group__,
        'background-color:#DFE;' as __style__,
-       NULL as ticket, 'Total work' AS summary,
+       0 as ticket, 'Total work' AS summary,
        t.component as __component__, NULL as version, NULL as severity,
        NULL as  milestone, 'Time Remaining: ' as status,
        CAST(
@@ -539,7 +539,7 @@ UNION
 SELECT '1' AS __color__,
        t.milestone AS __group__,
        'background-color:#DFE;' as __style__,
-       NULL as ticket, 'Total work' AS summary,
+       0 as ticket, 'Total work' AS summary,
        NULL as component,NULL as version, NULL as severity,
        t.milestone as  __milestone__, 'Time Remaining: ' as status,
        CAST(
@@ -626,7 +626,7 @@ UNION
 SELECT '1' AS __color__,
        t.milestone AS __group__,
        'background-color:#DFE;' as __style__,
-       NULL as ticket, 'Total work' AS summary,
+       0 as ticket, 'Total work' AS summary,
        NULL as component,NULL as version, NULL as severity,
        t.milestone as __milestone__,
        'Time Remaining: ' as status,
