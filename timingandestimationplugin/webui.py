@@ -30,8 +30,8 @@ class TimingEstimationAndBillingPage(Component):
         when = int(when)
         now = int(now)
         dtwhen = datetime.datetime.fromtimestamp(when);
-        strwhen = "%s/%s/%s %#02d:%#02d:%#02d" % \
-                (dtwhen.month, dtwhen.day,dtwhen.year, dtwhen.hour,dtwhen.minute, dtwhen.second)
+        strwhen = "%s-%s-%s %#02d:%#02d:%#02d" % \
+                (dtwhen.year, dtwhen.month, dtwhen.day, dtwhen.hour,dtwhen.minute, dtwhen.second)
         sql = """
         INSERT INTO bill_date (time, set_when, str_value)
         VALUES (%s, %s, %s)
