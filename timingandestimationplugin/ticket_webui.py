@@ -1,29 +1,28 @@
 import re
+from trac.web.api import ITemplateStreamFilter
 from trac.log import logger_factory
 from trac.core import *
+from genshi.builder import tag
 from trac.web import IRequestHandler
 from trac.util import Markup
-from trac.web.chrome import add_stylesheet, add_script, \
-     INavigationContributor, ITemplateProvider
 from trac.web.href import Href
+from genshi.filters.transform import Transformer
+
 
 class TicketWebUiAddon(Component):
-    implements(INavigationContributor)
+    implements(ITemplateStreamFilter)
     
     def __init__(self):
         pass
-    
-     # INavigationContributor methods
-    def get_active_navigation_item(self, req):
-    
-        if re.search('ticket', req.path_info):
-            return "ticket-addon"
-        else:
-            return ""
 
-    def get_navigation_items(self, req):
-        if re.search('ticket', req.path_info):
-              src = req.href.chrome("Billing/ticket.js")
-              yield 'mainnav', "ticket-addon", \
-                    Markup("""<script language="javascript" type="text/javascript" src="%s"></script>"""%src)
-
+    # ITemplateStreamFilter
+    def filter_stream(self, req, method, filename, stream, data):
+        self.log.debug("TicketWebUiAddon executing") 
+        if not filename == 'ticket.html':
+            self.log.debug("TicketWebUiAddon not the correct template")
+            return stream
+        stream = stream | Transformer('//div[@id="banner"]').before(
+            tag.script(type="text/javascript", 
+                       src=req.href.chrome("Billing", "ticket.js"))()
+            )
+        return stream
