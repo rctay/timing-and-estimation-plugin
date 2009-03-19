@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 
 # trac-post-commit-hook
 # ----------------------------------------------------------------------------
@@ -24,28 +23,31 @@
 # IN THE SOFTWARE.
 # ----------------------------------------------------------------------------
 
-
-
-
-# Changes for the Timing and Estimation plugin
+### Changes for the Timing and Estimation plugin
+#
+# This script is very similar to "trac-post-commit" included with trac
+# itself.  This section explains functional changes relative to that
+# script, and comments throughout the code explain other differences.
+#
+## Logging support for debugging this hook
+#
+## Support for specifying time spent in commit messages.
 #
 # "Blah refs #12 (1)" will add 1h to the spent time for issue #12
 # "Blah refs #12 (spent 1.5)" will add 1h to the spent time for issue #12
 #
 # As above it is possible to use complicated messages:
 #
-# "Changed blah and foo to do this or that. Fixes #10 (1) and #12 (2), and refs #13 (0.5)."
+# "Changed blah and foo to do this or that. Fixes #10 (1) and #12 (2),
+# and refs #13 (0.5)."
 #
-# This will close #10 and #12, and add a note to #13 and also add 1h spent time to #10,
-# add 2h spent time to #12 and add 30m spent time to #13.
+# This will close #10 and #12, and add a note to #13 and also add 1h
+# spent time to #10, add 2h spent time to #12 and add 30m spent time
+# to #13.
 #
 # Note that:
 #     (spent 2), (sp 2) or simply (2) may be used for spent
 #     ' ', ',', '&' or 'and' may be used references
-#
-
-
-
 
 # This Subversion post-commit hook script is meant to interface to the
 # Trac (http://www.edgewall.com/products/trac/) issue tracking/wiki/etc 
@@ -56,6 +58,7 @@
 #
 # REPOS="$1"
 # REV="$2"
+# TRAC_ENV="/path/to/tracenv"
 #
 # /usr/bin/python /usr/local/src/trac/contrib/trac-post-commit-hook \
 #  -p "$TRAC_ENV" -r "$REV"
@@ -99,32 +102,6 @@ import re
 import os
 import sys
 from datetime import datetime 
-
-from trac.env import open_environment
-from trac.ticket.notification import TicketNotifyEmail
-from trac.ticket import Ticket
-from trac.ticket.web_ui import TicketModule
-# TODO: move grouped_changelog_entries to model.py
-from trac.util.text import to_unicode
-from trac.util.datefmt import utc
-from trac.versioncontrol.api import NoSuchChangeset
-
-logfile = "/var/trac/commithook.log"
-LOG = False
-
-if LOG:
-    f = open (logfile,"w")
-    f.write("Begin Log\n")
-    f.close()
-    def log (s, *params):
-        f = open (logfile,"a")
-        f.write(s % params)
-        f.write("\n")
-        f.close()
-else:
-    def log (s, *params):
-        pass
-
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -149,6 +126,38 @@ parser.add_option('-s', '--siteurl', dest='url',
 
 (options, args) = parser.parse_args(sys.argv[1:])
 
+if not 'PYTHON_EGG_CACHE' in os.environ:
+    os.environ['PYTHON_EGG_CACHE'] = os.path.join(options.project, '.egg-cache')
+
+from trac.env import open_environment
+from trac.ticket.notification import TicketNotifyEmail
+from trac.ticket import Ticket
+from trac.ticket.web_ui import TicketModule
+# TODO: move grouped_changelog_entries to model.py
+from trac.util.text import to_unicode
+from trac.util.datefmt import utc
+from trac.versioncontrol.api import NoSuchChangeset
+
+# Change logfile to point to someplace this script can write.
+logfile = "/var/trac/commithook.log"
+LOG = False
+
+if LOG:
+    f = open (logfile,"w")
+    f.write("Begin Log\n")
+    f.close()
+    def log (s, *params):
+        f = open (logfile,"a")
+        f.write(s % params)
+        f.write("\n")
+        f.close()
+else:
+    def log (s, *params):
+        pass
+
+# Relative to trac standard, this table is hoisted out of class
+# CommitHook so that it can be used in constructing a regexp that only
+# matches on supported commands.
 _supported_cmds = {'close':      '_cmdClose',
                    'closed':     '_cmdClose',
                    'closes':     '_cmdClose',
@@ -161,36 +170,34 @@ _supported_cmds = {'close':      '_cmdClose',
                    'refs':       '_cmdRefs',
                    'see':        '_cmdRefs'}
 
+# Regexps are extended to include "(1)" and "(spent 1)".
 ticket_prefix = '(?:#|(?:ticket|issue|bug)[: ]?)'
 time_pattern = r'[ ]?(?:\((?:(?:spent|sp)[ ]?)?(-?[0-9]*(?:\.[0-9]+)?)\))?'
-ticket_reference = ticket_prefix + '[0-9]+'+time_pattern
+ticket_reference = ticket_prefix + '[0-9]+' + time_pattern
 support_cmds_pattern = '|'.join(_supported_cmds.keys())
+
+# Relative to upstream, only match command tokens (rather than
+# matching all words).
 ticket_command =  (r'(?P<action>(?:%s))[ ]*'
                    '(?P<ticket>%s(?:(?:[, &]*|[ ]?and[ ]?)%s)*)' %
-                   (support_cmds_pattern,ticket_reference, ticket_reference))
-command_re = re.compile(ticket_command, re.IGNORECASE)
-ticket_re = re.compile(ticket_prefix + '([0-9]+)', re.IGNORECASE)
-
+                   (support_cmds_pattern, ticket_reference, ticket_reference))
 
 if options.envelope:
     ticket_command = r'\%s%s\%s' % (options.envelope[0], ticket_command,
                                     options.envelope[1])
     
+# Because we build the regexp to recognize only supported commands,
+# ignore case here.
 command_re = re.compile(ticket_command, re.IGNORECASE)
-ticket_re = re.compile(ticket_prefix + '([0-9]+)'+time_pattern, re.IGNORECASE)
+ticket_re = re.compile(ticket_prefix + '([0-9]+)' + time_pattern, re.IGNORECASE)
 
 class CommitHook:
-
-    def init_env(self, project):
-        self.env = open_environment(project)
-        
-
     def __init__(self, project=options.project, author=options.user,
                  rev=options.rev, url=options.url):
-        self.init_env( project )
-        
+        self.env = open_environment(project)
         repos = self.env.get_repository()
         repos.sync()
+        
         # Instead of bothering with the encoding, we'll use unicode data
         # as provided by the Trac versioncontrol API (#1310).
         try:
@@ -203,17 +210,18 @@ class CommitHook:
         self.now = datetime.now(utc)
 
         cmd_groups = command_re.findall(self.msg)
+
         log ("cmd_groups:%s", cmd_groups)
         tickets = {}
+        # \todo Explain what xxx1 and xxx2 do; I can't see more params
+        # in command_re.
         for cmd, tkts, xxx1, xxx2 in cmd_groups:
             log ("cmd:%s, tkts%s ", cmd, tkts)
             funcname = _supported_cmds.get(cmd.lower(), '')
             if funcname:
                 for tkt_id, spent in ticket_re.findall(tkts):
                     func = getattr(self, funcname)
-                    lst = tickets.setdefault(tkt_id, [])
-                    lst.append([func, spent])
-                    
+                    tickets.setdefault(tkt_id, []).append([func, spent])
 
         for tkt_id, vals in tickets.iteritems():
             log ("tkt_id:%s, vals%s ", tkt_id, vals)
@@ -233,11 +241,12 @@ class CommitHook:
                 for change in tm.grouped_changelog_entries(ticket, db):
                     if change['permanent']:
                         cnum += 1
+                
                 if spent_total:
                     self._setTimeTrackerFields(ticket, spent_total)
                 ticket.save_changes(self.author, self.msg, self.now, db, cnum+1)
                 db.commit()
-
+                
                 tn = TicketNotifyEmail(self.env)
                 tn.notify(ticket, newticket=0, modtime=self.now)
             except Exception, e:
@@ -260,9 +269,12 @@ class CommitHook:
         log ("Setting ticket:%s spent: %s", ticket, spent)
         if (spent != ''):
             spentTime = float(spent)
+            # \bug If the ticket has not been modified since
+            # TimingAndEstimation was installed, then it might not
+            # have hours.  It should still get hours applied because
+            # estimating and recording are separate.
             if (ticket.values.has_key('hours')):
                 ticket['hours'] = str(spentTime)
-                
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
@@ -271,4 +283,3 @@ if __name__ == "__main__":
         print "Note that the deprecated options will be removed in Trac 0.12."
     else:
         CommitHook()
-

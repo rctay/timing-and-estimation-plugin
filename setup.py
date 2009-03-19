@@ -54,3 +54,7 @@ setup(name=PACKAGE,
 ##
 ## Genshi filters to remove T&E reports from the
 ## standard reports page, where they display errors
+
+## Greg Troxel
+##
+## Updated the post commit hooks to be inline with upstream trac
