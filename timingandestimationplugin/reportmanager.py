@@ -132,6 +132,26 @@ class CustomReportManager:
           "LEFT JOIN report ON custom_report.id=report.id "\
           "WHERE custom_report.uuid=%s"
     return self.get_first_row(sql,uuid)
+
+  def get_reports_by_group(self, group):
+    """Gets all of the reports for a given group"""
+    db = self.env.get_db_cnx()
+    cursor = db.cursor()
+    rv = {}
+    try:
+      cursor.execute("SELECT custom_report.subgroup,report.id,report.title, custom_report.version, custom_report.uuid "
+                     "FROM custom_report "
+                     "LEFT JOIN report ON custom_report.id=report.id "
+                     "WHERE custom_report.maingroup=%s "
+                     "ORDER BY custom_report.subgroup,custom_report.ordering", (group,))
+      for subgroup, id, title, version, uuid in cursor:
+        if not rv.has_key(subgroup):
+          rv[subgroup] = { "title": subgroup,
+                           "reports": [] }
+        rv[subgroup]["reports"].append( { "id": int(id), "title": title, "version":version, "uuid":uuid } )
+    except:
+      pass
+    return rv
   
   def get_version_hash_by_group(self, group):
     """Gets all of the reports for a given group as a uuid=>version hash"""
