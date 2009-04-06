@@ -411,7 +411,7 @@ ORDER BY __component__, _ord ASC,ticket
     {
     "uuid":"7816f034-a174-4a94-aed6-358fb648b2fc",
     "title":"Ticket Hours Grouped By Component with Description",
-    "version":17,
+    "version":th_version,
     "sql": """
 SELECT __color__, __group__, __style__,  ticket, summary, __component__ ,
   version, severity, milestone, status, owner, Estimated_work, Total_work,
