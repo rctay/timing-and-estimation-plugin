@@ -58,8 +58,9 @@ class CustomReportManager:
       db.rollback()
 
   def get_report_id_and_version (self, uuid):
-    sql = "SELECT id, version FROM custom_report " \
-          "WHERE uuid=%s"
+    sql = "SELECT custom_report.id, custom_report.version FROM custom_report "\
+        "JOIN report ON report.id = custom_report.id " \
+        "WHERE uuid=%s"
     tpl = self.get_first_row(sql, uuid)
     return tpl or (None, 0)
     
@@ -77,13 +78,14 @@ class CustomReportManager:
                       uuid, maingroup, subgroup, version, ordering):
     """ Adds a row the custom_report_table """
     self.log.debug("Inserting new report '%s' with uuid '%s'" % (title,uuid))
-    self.execute_in_trans(("INSERT INTO report (id, title, author, description, query) " \
+    self.execute_in_trans(("DELETE FROM custom_report WHERE uuid=%s", (uuid,)), 
+                          ("INSERT INTO report (id, title, author, description, query) " \
                            "VALUES (%s, %s, %s, %s, %s)",
                            (next_id, title, author, description, query)),
                           ("INSERT INTO custom_report (id, uuid, maingroup, subgroup, version, ordering) " \
                            "VALUES (%s, %s, %s, %s, %s, %s)",
                            (next_id, uuid, maingroup, subgroup, version, ordering)))
-    self.log.debug("Attempting to increment sequence")
+    self.log.debug("Attempting to increment sequence (only works in postgres)")
     try:
       self.execute_in_trans(("SELECT nextval('report_id_seq');",[]));
       self.log.debug("Sequence updated");
@@ -131,8 +133,8 @@ class CustomReportManager:
           "WHERE custom_report.uuid=%s"
     return self.get_first_row(sql,uuid)
   
-  def get_reports_by_group(self, group):
-    """Gets all of the reports for a given group"""
+  def get_version_hash_by_group(self, group):
+    """Gets all of the reports for a given group as a uuid=>version hash"""
     db = self.env.get_db_cnx()
     cursor = db.cursor()
     rv = {}
@@ -143,10 +145,7 @@ class CustomReportManager:
                      "WHERE custom_report.maingroup=%s "
                      "ORDER BY custom_report.subgroup,custom_report.ordering", (group,))
       for subgroup, id, title, version, uuid in cursor:
-        if not rv.has_key(subgroup):
-          rv[subgroup] = { "title": subgroup,
-                           "reports": [] }
-        rv[subgroup]["reports"].append( { "id": int(id), "title": title, "version":version, "uuid":uuid } )
+        rv[uuid] = version
     except:
       pass
     return rv

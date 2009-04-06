@@ -126,27 +126,18 @@ class TimeTrackingSetupParticipant(Component):
 
     def reports_need_upgrade(self):
         mgr = CustomReportManager(self.env, self.log)
-        db_report_hash = mgr.get_reports_by_group(CustomReportManager.TimingAndEstimationKey)
-        db_reports = Set()
-        py_reports = Set()
+        db_reports = mgr.get_version_hash_by_group(CustomReportManager.TimingAndEstimationKey)
+        py_reports = {}
         for report_group in all_reports:
             for report in report_group['reports']:
-                py_reports.add((report['uuid'], report['version']))
-        for key, report_group in db_report_hash.items():
-            for report in report_group['reports']:
-                db_reports.add((report['uuid'], report['version']))
-        #diff = db_reports.symmetric_difference(py_reports)
-
-        # the things in the python reports that are not in the database
-        diff = py_reports.difference(db_reports)
-        for py in diff.copy():
-            for db in db_reports:
-                #if we have the same report and the db has a higher version
-                # remove it from the difference
-                if db[0] == py[0] and db[1] >= py[1] :
-                    diff.remove(py);
+                py_reports[report['uuid']]= report['version']
+        
+        diff = [(uuid, version) for (uuid, version) in py_reports.items()
+                if not db_reports.has_key(uuid) or int(db_reports[uuid]) < int(version)]
+                
         if len(diff) > 0:
-            self.log.debug ("T&E needs upgrades for the following reports: %s" % diff )
+            self.log.debug ("T&E needs upgrades for the following reports: %s" %
+                            (diff, ))
         return len(diff) > 0
 
     def do_reports_upgrade(self, force=False):

@@ -7,6 +7,7 @@ from trac.web import IRequestHandler
 from trac.util import Markup
 from trac.web.href import Href
 from genshi.filters.transform import Transformer
+from trac.web.api import ITemplateStreamFilter
 
 
 class TicketWebUiAddon(Component):
