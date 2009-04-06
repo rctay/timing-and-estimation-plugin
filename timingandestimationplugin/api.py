@@ -191,26 +191,34 @@ class TimeTrackingSetupParticipant(Component):
         self.config.set(ticket_custom,"totalhours", "text")
         if not self.config.get( ticket_custom, "totalhours.order") :
             self.config.set(ticket_custom,"totalhours.order", "4")
-        self.config.set(ticket_custom,"totalhours.value", "0")
-        self.config.set(ticket_custom,"totalhours.label", "Total Hours")
+        if not self.config.get( ticket_custom, "totalhours.value") :
+            self.config.set(ticket_custom,"totalhours.value", "0")
+        if not self.config.get( ticket_custom, "totalhours.label") :
+            self.config.set(ticket_custom,"totalhours.label", "Total Hours")
 
         self.config.set(ticket_custom,"billable", "checkbox")
-        self.config.set(ticket_custom,"billable.value", "1")
+        if not self.config.get( ticket_custom, "billable.value") :
+            self.config.set(ticket_custom,"billable.value", "1")
         if not self.config.get( ticket_custom, "billable.order") :
             self.config.set(ticket_custom,"billable.order", "3")
-        self.config.set(ticket_custom,"billable.label", "Billable?")
+        if not self.config.get( ticket_custom, "billable.label") :
+            self.config.set(ticket_custom,"billable.label", "Billable?")
 
         self.config.set(ticket_custom,"hours", "text")
-        self.config.set(ticket_custom,"hours.value", "0")
+        if not self.config.get( ticket_custom, "hours.value") :
+            self.config.set(ticket_custom,"hours.value", "0")
         if not self.config.get( ticket_custom, "hours.order") :
             self.config.set(ticket_custom,"hours.order", "2")
-        self.config.set(ticket_custom,"hours.label", "Add Hours to Ticket")
+        if not self.config.get( ticket_custom, "hours.label") :
+            self.config.set(ticket_custom,"hours.label", "Add Hours to Ticket")
 
         self.config.set(ticket_custom,"estimatedhours", "text")
-        self.config.set(ticket_custom,"estimatedhours.value", "0")
+        if not self.config.get( ticket_custom, "estimatedhours.value") :
+            self.config.set(ticket_custom,"estimatedhours.value", "0")
         if not self.config.get( ticket_custom, "estimatedhours.order") :
             self.config.set(ticket_custom,"estimatedhours.order", "1")
-        self.config.set(ticket_custom,"estimatedhours.label", "Estimated Number of Hours")
+        if not self.config.get( ticket_custom, "estimatedhours.label") :
+            self.config.set(ticket_custom,"estimatedhours.label", "Estimated Number of Hours")
 
         self.config.save();
 
