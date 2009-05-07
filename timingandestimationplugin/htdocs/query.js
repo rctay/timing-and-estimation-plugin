@@ -29,7 +29,7 @@
       var cells = tbl.tBodies[0].rows[0].cells;
       var cellIdxs = [], columnNames = {};
       for(var i=0 ; cell = cells[i] ; i++ ){
-	 if(!isNaN(Number(cells[i].textContent))){
+	 if(cells[i].textContent!="" && !isNaN(Number(cells[i].textContent))){
 	    cellIdxs.push(i);
 	    if(tbl && tbl.tHead.rows.length > 0)
 	       columnNames[i] = tbl.tHead.rows[0].cells[i].textContent;
@@ -44,10 +44,11 @@
 	    for(var j=0 ; idx = cellIdxs[j] ; j++){
 	       if(totals[idx] == null) totals[idx] = 0;
 	       if(total_totals[idx] == null) total_totals[idx] = 0;
-	       if(!isNaN(Number(row.cells[idx].textContent)))
+	       if(row.cells[idx].textContent!="" && !isNaN(Number(row.cells[idx].textContent))){
 		  var val = Number(row.cells[idx].textContent);
 		  total_totals[idx] += val
                   totals[idx] += val;
+	       }
 	    }
 	 }
 	 if(tbl.tBodies[0].rows.length > 0){
