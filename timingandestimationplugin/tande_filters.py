@@ -2,8 +2,11 @@ from trac.web.api import ITemplateStreamFilter
 from trac.core import *
 from genshi.core import *
 from genshi.builder import tag
-from sets import Set as set
 from genshi.filters.transform import Transformer
+
+import sys 
+if sys.version_info < (2, 4, 0): 
+    from sets import Set as set
 
 class RowFilter(object):
     """A genshi filter that operates on table rows, completely hiding any that
