@@ -3,7 +3,6 @@ import re
 import time
 import datetime
 import dbhelper
-from sets import Set
 from usermanual import *
 from trac.log import logger_factory
 from trac.core import *

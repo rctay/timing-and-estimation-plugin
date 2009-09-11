@@ -15,7 +15,7 @@ from query_webui import *
 from reportmanager import CustomReportManager
 from statuses import *
 from reports import all_reports
-from sets import Set
+
 
 ## report columns
 ## id|author|title|query|description
