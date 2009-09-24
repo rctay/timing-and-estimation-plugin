@@ -1,3 +1,5 @@
+import re
+from trac import util
 from trac.web.api import ITemplateStreamFilter
 from trac.core import *
 from genshi.core import *
@@ -103,6 +105,40 @@ class TotalHoursFilter(Component):
         return stream | Transformer(
             '//input[@id="field-totalhours" and @type="text" and @name="field_totalhours"]'
             ).apply(FilterTransformation(disable_field))
+
+
+
+
+
+class TimeClickFilter(Component):
+    """Add a javascript onclick button to add the time since the change into the add hours box """
+    implements(ITemplateStreamFilter)
+    
+    def match_stream(self, req, method, filename, stream, data):
+        self.log.debug("matching: ticket.html")
+        return filename == 'ticket.html'
+
+    def filter_stream(self, req, method, filename, stream, data):
+        if not self.env.config.getbool('timingandestimationplugin','show_add_time_buttons'):
+            return stream
+        def add_time_click(field_stream):
+            time = Stream(field_stream).select('@title').render()
+            time = time.split(" ")[0] # get the time out of the title
+            #render the guts of the h3 without changes
+            for kind,data,pos in field_stream:
+                yield kind,data,pos
+            #create the button tag that to add hours
+            btn = tag.input(None, type='submit', title="add time elapsed since this comment", value="Add Time", time=time, onclick="onClickOfADateElement(this.getAttribute('time'));return false;")
+            #create a div with the class that all the other buttons have
+            new_stream = tag.div(btn, **{"class":"inlinebuttons"})
+            #output new div/button
+            for kind,data,pos in new_stream:
+                yield kind,data,pos                    
+
+        return stream | Transformer(
+            # we want the text and the nodes so that we can insert at the end
+            '//h3[@class="change"]/*|//h3[@class="change"]/text()'
+            ).apply(FilterTransformation(add_time_click))
 
 
 
