@@ -31,9 +31,14 @@ class RowFilter(object):
         events = list(row_stream)
         report_url = Stream(events) \
                         .select('td[@class="report"]/a/@href').render()
-        id = int(report_url.split('/')[-1])
+        try:
+            id = int(report_url.split('/')[-1])
 
-        if not id in self.billing_reports:
+            if not id in self.billing_reports:
+                for kind,data,pos in Stream(events):
+                    yield kind,data,pos
+        except Exception, e:
+            self.component.log.exception("Report row filter failed")
             for kind,data,pos in Stream(events):
                 yield kind,data,pos
 
