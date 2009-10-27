@@ -166,10 +166,14 @@ class TimeTrackingTicketValidator(Component):
         #some european countries use , as the decimal separator
         try:
             convertfloat(ticket.values['hours'])
+        except KeyError:
+            self.log.exception("The hours field was not submitted")
         except ValueError:
             errors.append(('Add Hours to Ticket', 'Value must be a number'))
         try:
             convertfloat(ticket.values['estimatedhours'])
+        except KeyError:
+            self.log.exception("The estimatedhours field was not submitted")
         except ValueError:
             errors.append(('Estimated Number of Hours', 'Value must be a number'))
         return errors
