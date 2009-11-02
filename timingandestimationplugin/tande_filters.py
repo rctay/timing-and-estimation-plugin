@@ -1,4 +1,5 @@
 import re
+import dbhelper
 from trac import util
 from trac.web.api import ITemplateStreamFilter
 from trac.core import *
@@ -16,14 +17,10 @@ class RowFilter(object):
 
     def __init__(self, comp):
         self.component = comp
-        cur = comp.env.get_db_cnx().cursor()
-        try:
-            cur.execute("SELECT id FROM custom_report")
-            self.billing_reports = set([x[0] for x in cur.fetchall()])
-        except Exception, e:
-            # if we can't get the billing reports (e.g. the
-            # TimingAndEstimationPlugin isn't installed), silently continue
-            # without hiding anything.
+        rows = dbhelper.get_all(comp, "SELECT id FROM custom_report")[1]
+        if rows:
+            self.billing_reports = set([x[0] for x in rows])
+        else:
             self.billing_reports = set()
         self.component.log.debug('self.billing_reports= %r' % self.billing_reports)
 
