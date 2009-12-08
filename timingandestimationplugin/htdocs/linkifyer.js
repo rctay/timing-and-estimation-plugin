@@ -1,41 +1,51 @@
 
-//var linkify = 
+//var linkify =
 //(function(){
-   String.prototype.trim = 
+   String.prototype.trim =
       (function () {return this.replace(/^\s+/, "").replace(/\s+$/, "");});
-   var invalidDate = new Date("invalid").toString()
-   var billingfields= {}
-   var statusfields = []
+   var invalidDate = new Date("invalid").toString();
+   var billingfields= {};
+   var statusfields = [];
    function dateToUnixEpoch(date){
       return Math.round(date.getTime()/1000) - (60 * date.getTimezoneOffset());
    }
+   function makeDate(val) {
+      try{
+	 var d = Date.parse(val);
+      }
+      catch(e){
+	 d = invalidDate;
+      }
+      if(d.toString == invalidDate){
+	 alert("You entered an invalid "+name);
+	 return null;
+      }
+      return d;
+   }
    function addBillingField( name /*optional type defaults to "textbox", optional flag status*/ ){
       var type = arguments.length >= 1 ? arguments[1] : "textbox";
-      var status = arguments.length >= 2 ? arguments[2] : false; 
-      var getSet = 
+      var status = arguments.length >= 2 ? arguments[2] : false;
+      var getSet =
 	 (function(){
 	    var valueProp = "value";
-	    
+
 	    if(type == "date"){
 	       return function (/*optional value*/){
 		  if(arguments.length == 0){
-		     var d = new Date(this.$()[valueProp]);
-		     if(d.toString == invalidDate){
-			alert("You entered an invalid "+name);
-			return null;
-		     }
-		     return dateToUnixEpoch(d);
+		     var d = makeDate(this.$()[valueProp]);
+		     if (d) return dateToUnixEpoch(d);
+		     else return null;
 		  }
 		  else{
-		     var val = new Date(arguments[0]);
-		     if(val.toString == invalidDate){
+		     var val = makeDate(arguments[0]);
+		     if(!val){
 			this.$()[valueProp] = null;
 			return null;
 		     }
 		     this.$()[valueProp] = val;
 		     return val;
 		  }
-	       }
+	       };
 	    }
 	    //FOR EVERYTHING ELSE
 	    if(type == "checkbox"){
@@ -45,7 +55,7 @@
 	       //alert(name+" : "+type+" "+valueProp);
 	       if(arguments.length == 0){
 		  var val = (this.$())[valueProp];
-		  
+
 		  if(typeof(val) == "string") val = val.trim();
 		  if(val)return val;
 		  return null;
@@ -53,10 +63,10 @@
 	       else{
 		  var val = arguments[0];
 		  (this.$())[valueProp] = val;
-		  return val
+		  return val;
 	       }
-	    }
-	 })()
+	    };
+	  })();
       billingfields[name] = {
 	 "$" : function(){
 	    return document.getElementById(name);
@@ -82,7 +92,7 @@
    addBillingField("startbilling", "dateselect");
    addBillingField("enddate", "date");
    addBillingField("endbilling", "dateselect");
-   
+
 
    var linkify = function ( atag, basehref ){
       var query = "";

@@ -101,6 +101,7 @@ class TimingEstimationAndBillingPage(Component):
         self.set_request_billing_dates(data)
 
         add_stylesheet(req, "Billing/billingplugin.css")
+        add_script(req, "Billing/date.js")
         add_script(req, "Billing/linkifyer.js")
         return 'billing.html', data, None
 
