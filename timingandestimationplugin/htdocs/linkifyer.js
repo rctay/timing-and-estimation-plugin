@@ -16,8 +16,8 @@
       catch(e){
 	 d = invalidDate;
       }
-      if(d.toString == invalidDate){
-	 alert("You entered an invalid "+name);
+      if(!d || d.toString == invalidDate){
+	 alert("You entered an invalid date: "+val);
 	 return null;
       }
       return d;
