@@ -10,15 +10,18 @@
       return Math.round(date.getTime()/1000) - (60 * date.getTimezoneOffset());
    }
    function makeDate(val) {
-      try{
-	 var d = Date.parse(val);
-      }
-      catch(e){
-	 d = invalidDate;
-      }
-      if(!d || d.toString == invalidDate){
-	 alert("You entered an invalid date: "+val);
-	 return null;
+      var d = null;
+      if (val && val.length && val.length>0){
+	 try{
+	    d = Date.parse(val);
+	 }
+	 catch(e){
+	    d = invalidDate;
+	 }
+	 if(!d || d.toString == invalidDate){
+	    alert("You entered an invalid date: "+val);
+	    return null;
+	 }
       }
       return d;
    }
