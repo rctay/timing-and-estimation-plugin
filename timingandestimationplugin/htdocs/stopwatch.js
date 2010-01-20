@@ -22,13 +22,13 @@ $(document).ready(function() {
 		field_sec = field_sec[0].firstChild;
 
 		var interval_id, interval_func;
-		var interval_params = {
+		var p = {
 			h: 0,
 			m: 0,
 			s: 0,
 			ms: 0
 		};
-		var interval_func = function(p) {
+		var interval_func = function() {
 			if (++p.ms>=10) {
 				p.ms = 0;
 				p.s++;
@@ -47,7 +47,7 @@ $(document).ready(function() {
 		};
 
 		return {
-			interval_params: interval_params,
+			interval_params: p,
 
 			init: function(p_stopwatch) {
 				p_stopwatch
@@ -65,16 +65,16 @@ $(document).ready(function() {
 				StopwatchControls.btn_reset.show();
 			},
 			continue_stopwatch_display: function() {
-				interval_id = setInterval(interval_func, 100, interval_params);
+				interval_id = setInterval(interval_func, 100);
 
 				StopwatchControls.btn_flow.text('Pause');
 				StopwatchControls.btn_reset.hide();
 			},
 			reset_stopwatch_display: function() {
-				interval_params.h = 0;
-				interval_params.m = 0;
-				interval_params.s = 0;
-				interval_params.ms = 0;
+				p.h = 0;
+				p.m = 0;
+				p.s = 0;
+				p.ms = 0;
 
 				field_hour.nodeValue = '00';
 				field_min.nodeValue = '00';
