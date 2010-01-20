@@ -48,7 +48,7 @@ $(document).ready(function() {
 				p.s++;
 				field_sec.nodeValue = p.s < 10 ? '0'+p.s : p.s;
 			}
-			if (p.s>=600) {
+			if (p.s>=60) {
 				p.s = 0;
 				p.m++;
 				field_min.nodeValue = p.m < 10 ? '0'+p.m : p.m;
