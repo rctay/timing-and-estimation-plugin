@@ -78,7 +78,7 @@ $(document).ready(function() {
 		btn_reset.hide();
 	};
 
-	var running = false;
+	var running = false, reset = false;
 	var use_value = false;
 	btn_flow.click(function() {
 		if (running) {
@@ -92,6 +92,7 @@ $(document).ready(function() {
 			continue_stopwatch_display();
 		}
 		running = !running;
+		reset = false;
 	});
 
 	btn_reset.click(function() {
@@ -99,6 +100,7 @@ $(document).ready(function() {
 
 		reset_stopwatch_display();
 		running = false;
+		reset = true;
 	});
 
 	/* toggles the stopwatch (and controls) with a simple slide */
@@ -118,7 +120,10 @@ $(document).ready(function() {
 			stopwatch.hide("fast");
 		},
 		function() {
-			this.firstChild.nodeValue = 'Hide stopwatch';
+			if (reset)
+				this.firstChild.nodeValue = 'Hide stopwatch';
+			else
+				this.firstChild.nodeValue = 'Use stopwatch value';
 			stopwatch.show("fast");
 		}
 	);
