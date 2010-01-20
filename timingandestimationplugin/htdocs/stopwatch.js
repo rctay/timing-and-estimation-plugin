@@ -6,9 +6,9 @@ $(document).ready(function() {
 	var toggler, stopwatch;
 
 	/* the stopwatch (looks like 00:00:00) */
-	var field_hour = $('<span></span>');
-	var field_min = $('<span></span>');
-	var field_sec = $('<span></span>');
+	var field_hour = $('<span>00</span>');
+	var field_min = $('<span>00</span>');
+	var field_sec = $('<span>00</span>');
 
 	stopwatch = $('<div></div>')
 		.append(field_hour)
@@ -16,6 +16,10 @@ $(document).ready(function() {
 		.append(field_min)
 		.append(':')
 		.append(field_sec);
+
+	field_hour = field_hour[0].firstChild;
+	field_min = field_min[0].firstChild;
+	field_sec = field_sec[0].firstChild;
 
 	/*
  	 * add buttons to control the stopwatch
@@ -40,16 +44,16 @@ $(document).ready(function() {
 	var continue_stopwatch_display = function() {
 		interval_id = setInterval(function(p) {
 			p.s++;
-			field_sec[0].firstChild.nodeValue = p.s < 10 ? '0'+p.s : p.s;
+			field_sec.nodeValue = p.s < 10 ? '0'+p.s : p.s;
 			if (p.s>=60) {
 				p.s = 0;
 				p.m++;
-				field_min[0].firstChild.nodeValue = p.m < 10 ? '0'+p.m : p.m;
+				field_min.nodeValue = p.m < 10 ? '0'+p.m : p.m;
 			}
 			if (p.m>=60) {
 				p.m = 0;
 				p.h++;
-				field_hour[0].firstChild.nodeValue = p.h < 10 ? '0'+p.h : p.h;
+				field_hour.nodeValue = p.h < 10 ? '0'+p.h : p.h;
 			}
 		}, 1000, interval_params);
 
@@ -62,9 +66,9 @@ $(document).ready(function() {
 			'm': 0,
 			's': 0
 		};
-		field_hour.text('00');
-		field_min.text('00');
-		field_sec.text('00');
+		field_hour.nodeValue = '00';
+		field_min.nodeValue = '00';
+		field_sec.nodeValue = '00';
 
 		btn_flow.text('Start');
 		btn_reset.hide();
