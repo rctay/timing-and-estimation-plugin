@@ -4,8 +4,18 @@
 
 $(document).ready(function() {
 	var toggler, stopwatch;
-	
-	stopwatch = $('<div>stopwatch goes here</div>');
+
+	var field_hour = $('<span></span>');
+	var field_min = $('<span></span>');
+	var field_sec = $('<span></span>');
+
+	stopwatch = $('<div></div>')
+		.append(field_hour)
+		.append(':')
+		.append(field_min)
+		.append(':')
+		.append(field_sec);
+
 	toggler = $('<div>Show stopwatch</div>')
 		.append(stopwatch);
 	toggler.click(function() {
