@@ -29,15 +29,15 @@ $(document).ready(function() {
 		.append(btn_flow)
 		.append(btn_reset));
 
-	var pause_stopwatch = function() {
+	var pause_stopwatch_display = function() {
 		btn_flow.text('Continue');
 		btn_reset.show();
 	};
-	var continue_stopwatch = function() {
+	var continue_stopwatch_display = function() {
 		btn_flow.text('Pause');
 		btn_reset.hide();
 	};
-	var reset_stopwatch = function() {
+	var reset_stopwatch_display = function() {
 		btn_flow.text('Start');
 		btn_reset.hide();
 	};
@@ -45,16 +45,16 @@ $(document).ready(function() {
 	var running = 0;
 	btn_flow.click(function() {
 		if (running)
-			pause_stopwatch();
+			pause_stopwatch_display();
 		else
-			continue_stopwatch();
+			continue_stopwatch_display();
 		running = !running;
 	});
 
 	btn_reset.click(function() {
 		if (running) return;
 
-		reset_stopwatch();
+		reset_stopwatch_display();
 		running = false;
 	});
 
@@ -72,6 +72,6 @@ $(document).ready(function() {
 		.append(stopwatch));
 
 	/* initialize */
-	reset_stopwatch();
+	reset_stopwatch_display();
 	stopwatch.hide();
 })
