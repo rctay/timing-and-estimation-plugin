@@ -43,9 +43,12 @@ $(document).ready(function() {
 	};
 	var continue_stopwatch_display = function() {
 		interval_id = setInterval(function(p) {
-			p.s++;
-			field_sec.nodeValue = p.s < 10 ? '0'+p.s : p.s;
-			if (p.s>=60) {
+			if (++p.ms>=10) {
+				p.ms = 0;
+				p.s++;
+				field_sec.nodeValue = p.s < 10 ? '0'+p.s : p.s;
+			}
+			if (p.s>=600) {
 				p.s = 0;
 				p.m++;
 				field_min.nodeValue = p.m < 10 ? '0'+p.m : p.m;
@@ -55,7 +58,7 @@ $(document).ready(function() {
 				p.h++;
 				field_hour.nodeValue = p.h < 10 ? '0'+p.h : p.h;
 			}
-		}, 1000, interval_params);
+		}, 100, interval_params);
 
 		btn_flow.text('Pause');
 		btn_reset.hide();
@@ -64,7 +67,8 @@ $(document).ready(function() {
 		interval_params = {
 			'h': 0,
 			'm': 0,
-			's': 0
+			's': 0,
+			'ms': 0
 		};
 		field_hour.nodeValue = '00';
 		field_min.nodeValue = '00';
