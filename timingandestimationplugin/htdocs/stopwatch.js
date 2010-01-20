@@ -107,12 +107,11 @@ $(document).ready(function() {
 			if (running)
 				return false;
 			if (use_value) {
-				val = Math.round((
+				$("input#field-hours")[0].value = Math.round((
 					interval_params.h +
 					interval_params.m / 60 +
 					interval_params.s / 3600
 				) * 100) / 100;
-				$("input#field-hours")[0].value = val;
 			}
 			this.firstChild.nodeValue = 'Show stopwatch';
 			stopwatch.hide("fast");
