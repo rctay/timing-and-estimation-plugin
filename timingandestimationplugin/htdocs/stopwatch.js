@@ -70,4 +70,8 @@ $(document).ready(function() {
 		$('<div></div>')
 		.append(toggler)
 		.append(stopwatch));
+
+	/* initialize */
+	reset_stopwatch();
+	stopwatch.hide();
 })
