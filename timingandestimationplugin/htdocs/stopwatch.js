@@ -29,7 +29,6 @@ $(document).ready(function() {
 		.append(btn_flow)
 		.append(btn_reset));
 
-	var running = 0;
 	var pause_stopwatch = function() {
 		btn_flow.text('Continue');
 		btn_reset.show();
@@ -43,6 +42,7 @@ $(document).ready(function() {
 		btn_reset.hide();
 	};
 
+	var running = 0;
 	btn_flow.click(function() {
 		if (running)
 			pause_stopwatch();
