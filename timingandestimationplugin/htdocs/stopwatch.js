@@ -40,16 +40,16 @@ $(document).ready(function() {
 	var continue_stopwatch_display = function() {
 		interval_id = setInterval(function(p) {
 			p.s++;
-			field_sec.text(p.s < 10 ? '0'+p.s : p.s);
+			field_sec[0].firstChild.nodeValue = p.s < 10 ? '0'+p.s : p.s;
 			if (p.s>=60) {
 				p.s = 0;
 				p.m++;
-				field_min.text(p.m < 10 ? '0'+p.m : p.m);
+				field_min[0].firstChild.nodeValue = p.m < 10 ? '0'+p.m : p.m;
 			}
 			if (p.m>=60) {
 				p.m = 0;
 				p.h++;
-				field_hour.text(p.h < 10 ? '0'+p.h : p.h);
+				field_hour[0].firstChild.nodeValue = p.h < 10 ? '0'+p.h : p.h;
 			}
 		}, 1000, interval_params);
 
