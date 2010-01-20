@@ -78,7 +78,7 @@ $(document).ready(function() {
 		btn_reset.hide();
 	};
 
-	var running = 0;
+	var running = false;
 	btn_flow.click(function() {
 		if (running)
 			pause_stopwatch_display();
