@@ -23,10 +23,10 @@ $(document).ready(function() {
 
 		var interval_id, interval_func;
 		var interval_params = {
-			'h': 0,
-			'm': 0,
-			's': 0,
-			'ms': 0
+			h: 0,
+			m: 0,
+			s: 0,
+			ms: 0
 		};
 		var interval_func = function(p) {
 			if (++p.ms>=10) {
