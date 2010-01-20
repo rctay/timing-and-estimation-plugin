@@ -78,39 +78,42 @@ $(document).ready(function() {
 		btn_reset.hide();
 	};
 
-	var running = false, reset = false;
-	var use_value = false;
+	var TracStopwatchPlugin = {
+		running: false,
+		reset: false,
+		use_value: false
+	};
 	btn_flow.click(function() {
-		if (running) {
+		if (TracStopwatchPlugin.running) {
 			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
 			toggler.show("fast");
-			use_value = true;
+			TracStopwatchPlugin.use_value = true;
 			pause_stopwatch_display();
 		} else {
 			toggler.hide("fast");
-			use_value = false;
+			TracStopwatchPlugin.use_value = false;
 			continue_stopwatch_display();
 		}
-		running = !running;
-		reset = false;
+		TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
+		TracStopwatchPlugin.reset = false;
 	});
 
 	btn_reset.click(function() {
-		if (running) return;
+		if (TracStopwatchPlugin.running) return;
 
 		reset_stopwatch_display();
 		toggler[0].firstChild.nodeValue = 'Hide stopwatch';
-		running = false;
-		reset = true;
+		TracStopwatchPlugin.running = false;
+		TracStopwatchPlugin.reset = true;
 	});
 
 	/* toggles the stopwatch (and controls) with a simple slide */
 	toggler = $('<div>Show stopwatch</div>')
 	toggler.toggle(
 		function() {
-			if (running)
+			if (TracStopwatchPlugin.running)
 				return false;
-			if (use_value) {
+			if (TracStopwatchPlugin.use_value) {
 				$("input#field-hours")[0].value = Math.round((
 					interval_params.h +
 					interval_params.m / 60 +
@@ -121,7 +124,7 @@ $(document).ready(function() {
 			stopwatch.hide("fast");
 		},
 		function() {
-			if (reset)
+			if (TracStopwatchPlugin.reset)
 				this.firstChild.nodeValue = 'Hide stopwatch';
 			else
 				this.firstChild.nodeValue = 'Use stopwatch value';
