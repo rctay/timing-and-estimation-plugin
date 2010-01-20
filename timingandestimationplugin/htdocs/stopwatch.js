@@ -29,15 +29,43 @@ $(document).ready(function() {
 		.append(btn_flow)
 		.append(btn_reset));
 
+	var interval_id, interval_func, interval_params;
 	var pause_stopwatch_display = function() {
+		clearInterval(interval_id);
+		interval_id = null;
+
 		btn_flow.text('Continue');
 		btn_reset.show();
 	};
 	var continue_stopwatch_display = function() {
+		interval_id = setInterval(function(p) {
+			p.s++;
+			field_sec.text(p.s < 10 ? '0'+p.s : p.s);
+			if (p.s>=60) {
+				p.s = 0;
+				p.m++;
+				field_min.text(p.m < 10 ? '0'+p.m : p.m);
+			}
+			if (p.m>=60) {
+				p.m = 0;
+				p.h++;
+				field_hour.text(p.h < 10 ? '0'+p.h : p.h);
+			}
+		}, 1000, interval_params);
+
 		btn_flow.text('Pause');
 		btn_reset.hide();
 	};
 	var reset_stopwatch_display = function() {
+		interval_params = {
+			'h': 0,
+			'm': 0,
+			's': 0
+		};
+		field_hour.text('00');
+		field_min.text('00');
+		field_sec.text('00');
+
 		btn_flow.text('Start');
 		btn_reset.hide();
 	};
