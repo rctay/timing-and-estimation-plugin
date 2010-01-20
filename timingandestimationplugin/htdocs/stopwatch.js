@@ -99,6 +99,7 @@ $(document).ready(function() {
 		if (running) return;
 
 		reset_stopwatch_display();
+		toggler[0].firstChild.nodeValue = 'Hide stopwatch';
 		running = false;
 		reset = true;
 	});
