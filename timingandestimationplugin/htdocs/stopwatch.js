@@ -96,9 +96,16 @@ $(document).ready(function() {
 
 	/* toggles the stopwatch (and controls) with a simple slide */
 	toggler = $('<div>Show stopwatch</div>')
-	toggler.click(function() {
-		stopwatch.toggle("fast");
-	});
+	toggler.toggle(
+		function() {
+			this.firstChild.nodeValue = 'Show stopwatch';
+			stopwatch.hide("fast");
+		},
+		function() {
+			this.firstChild.nodeValue = 'Hide stopwatch';
+			stopwatch.show("fast");
+		}
+	);
 
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
 	 * field. */
@@ -109,5 +116,5 @@ $(document).ready(function() {
 
 	/* initialize */
 	reset_stopwatch_display();
-	stopwatch.hide();
+	toggler.click();
 })
