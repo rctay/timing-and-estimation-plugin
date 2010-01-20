@@ -79,11 +79,17 @@ $(document).ready(function() {
 	};
 
 	var running = false;
+	var use_value = false;
 	btn_flow.click(function() {
-		if (running)
+		if (running) {
+			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
+			use_value = true;
 			pause_stopwatch_display();
-		else
+		} else {
+			toggler.hide();
+			use_value = false;
 			continue_stopwatch_display();
+		}
 		running = !running;
 	});
 
@@ -98,6 +104,16 @@ $(document).ready(function() {
 	toggler = $('<div>Show stopwatch</div>')
 	toggler.toggle(
 		function() {
+			if (running)
+				return false;
+			if (use_value) {
+				val = Math.round((
+					interval_params.h +
+					interval_params.m / 60 +
+					interval_params.s / 3600
+				) * 100) / 100;
+				$("input#field-hours")[0].value = val;
+			}
 			this.firstChild.nodeValue = 'Show stopwatch';
 			stopwatch.hide("fast");
 		},
