@@ -17,10 +17,12 @@ $(document).ready(function() {
 		.append(field_sec);
 
 	toggler = $('<div>Show stopwatch</div>')
-		.append(stopwatch);
 	toggler.click(function() {
 		stopwatch.toggle("fast");
 	});
-	
-	$("input#field-hours").after(toggler);
+
+	$("input#field-hours").after(
+		$('<div></div>')
+		.append(toggler)
+		.append(stopwatch));
 })
