@@ -83,6 +83,7 @@ $(document).ready(function() {
 	btn_flow.click(function() {
 		if (running) {
 			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
+			toggler.show();
 			use_value = true;
 			pause_stopwatch_display();
 		} else {
