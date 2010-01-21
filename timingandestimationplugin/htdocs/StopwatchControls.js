@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2010, Tay Ray Chuan
  */
-$(function() {
+jQuery(function($) {
 	StopwatchControls = function() {
 		var m_state;
 

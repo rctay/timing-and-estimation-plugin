@@ -8,7 +8,7 @@
  * Button 'flow' has states: start -> stop <-> continue
  * Button 'reset' has state: reset
  */
-$(function() {
+jQuery(function($) {
 	StopwatchDisplay = function() {
 		/* the stopwatch (looks like 00:00:00) */
 		var field_hour = $('<span>00</span>');

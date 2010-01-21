@@ -2,7 +2,7 @@
  * Copyright (C) 2010, Tay Ray Chuan
  */
 
-$(function() {
+jQuery(function($) {
 	var state = {
 		running: false,
 		reset: false,

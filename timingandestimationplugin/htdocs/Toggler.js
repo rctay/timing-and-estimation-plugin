@@ -3,7 +3,7 @@
  */
 
 /* toggles the stopwatch (and controls) with a simple slide */
-$(function() {
+jQuery(function($) {
 	Toggler = function() {
 		var m_state;
 		var m_field;
