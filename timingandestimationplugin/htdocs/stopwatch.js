@@ -20,9 +20,12 @@ jQuery(function($) {
 	StopwatchControls.controls.bind("continue", StopwatchDisplay.continue_stopwatch);
 	StopwatchControls.controls.bind("reset", StopwatchDisplay.reset_stopwatch);
 
-	Toggler.init(state, field[0]);
+	Toggler.init(state);
 
 	Toggler.toggler.bind("show", function() { stopwatch.show("fast") });
+	Toggler.toggler.bind("show", function() {
+		if (state.use_value)	field.value = StopwatchDisplay.get_hours();
+	});
 	Toggler.toggler.bind("hide", function() { stopwatch.hide("fast") });
 
 	StopwatchControls.btn_flow.click(Toggler.btn_flow_click);

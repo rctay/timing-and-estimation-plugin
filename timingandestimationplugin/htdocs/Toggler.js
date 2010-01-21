@@ -6,7 +6,6 @@
 jQuery(function($) {
 	Toggler = function() {
 		var m_state;
-		var m_field;
 
 		var should_show = true;
 		var toggler = $('<div>Show stopwatch</div>');
@@ -19,9 +18,6 @@ jQuery(function($) {
 
 		toggler.bind("show",
 			function() {
-				if (m_state.use_value) {
-					m_field.value = StopwatchDisplay.get_hours();
-				}
 				this.firstChild.nodeValue = 'Show stopwatch';
 			}
 		);
@@ -51,9 +47,8 @@ jQuery(function($) {
 			btn_flow_click: btn_flow_click,
 			btn_reset_click: btn_reset_click,
 
-			init: function(state, field) {
+			init: function(state) {
 				m_state = state;
-				m_field = field;
 			}
 		};
 	}();
