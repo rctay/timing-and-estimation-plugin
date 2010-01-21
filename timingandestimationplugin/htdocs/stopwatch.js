@@ -171,16 +171,16 @@ Toggler = function() {
 
 	return {
 		toggler: toggler,
-		init: function(p_stopwatch) {
-			StopwatchControls.btn_flow.click(btn_flow_click);
-			StopwatchControls.btn_reset.click(btn_reset_click);
-
+		init: function(p_stopwatch, p_btn_flow, p_btn_reset) {
 			toggler.click(function() {
 				if (should_show)
 					p_stopwatch.show("fast");
 				else
 					p_stopwatch.hide("fast");
 			});
+
+			p_btn_flow.click(btn_flow_click);
+			p_btn_reset.click(btn_reset_click);
 		}
 	};
 }();
@@ -193,7 +193,8 @@ $(document).ready(function() {
 
 	StopwatchControls.init(stopwatch);
 
-	Toggler.init(stopwatch);
+	Toggler.init(stopwatch,
+		StopwatchControls.btn_flow, StopwatchControls.btn_reset);
 
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
 	 * field. */
