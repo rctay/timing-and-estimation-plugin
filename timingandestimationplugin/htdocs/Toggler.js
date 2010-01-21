@@ -21,11 +21,7 @@ Toggler = function() {
 			if (m_state.running)
 				return false;
 			if (m_state.use_value) {
-				m_field.value = Math.round((
-					StopwatchDisplay.interval_params.h +
-					StopwatchDisplay.interval_params.m / 60 +
-					StopwatchDisplay.interval_params.s / 3600
-				) * 100) / 100;
+				m_field.value = StopwatchDisplay.get_hours();
 			}
 			this.firstChild.nodeValue = 'Show stopwatch';
 		}

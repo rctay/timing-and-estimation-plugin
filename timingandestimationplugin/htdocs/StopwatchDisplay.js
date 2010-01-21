@@ -44,8 +44,6 @@ StopwatchDisplay = function() {
 	};
 
 	return {
-		interval_params: p,
-
 		init: function(p_stopwatch) {
 			p_stopwatch
 				.append(field_hour)
@@ -70,6 +68,13 @@ StopwatchDisplay = function() {
 			field_hour.nodeValue = '00';
 			field_min.nodeValue = '00';
 			field_sec.nodeValue = '00';
+		},
+		get_hours: function() {
+			return Math.round((
+				p.h +
+				p.m / 60 +
+				p.s / 3600
+			) * 100) / 100;
 		}
 	};
 }();
