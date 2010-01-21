@@ -19,27 +19,22 @@ StopwatchDisplay = function() {
 	field_sec = field_sec[0].firstChild;
 
 	var interval_id, interval_func;
-	var p = {
-		h: 0,
-		m: 0,
-		s: 0,
-		ms: 0
-	};
+	var h = 0, m = 0, s = 0, ms = 0;
 	var interval_func = function() {
-		if (++p.ms>=10) {
-			p.ms = 0;
-			p.s++;
-			field_sec.nodeValue = p.s < 10 ? '0'+p.s : p.s;
+		if (++ms>=10) {
+			ms = 0;
+			s++;
+			field_sec.nodeValue = s < 10 ? '0'+s : s;
 		}
-		if (p.s>=60) {
-			p.s = 0;
-			p.m++;
-			field_min.nodeValue = p.m < 10 ? '0'+p.m : p.m;
+		if (s>=60) {
+			s = 0;
+			m++;
+			field_min.nodeValue = m < 10 ? '0'+m : m;
 		}
-		if (p.m>=60) {
-			p.m = 0;
-			p.h++;
-			field_hour.nodeValue = p.h < 10 ? '0'+p.h : p.h;
+		if (m>=60) {
+			m = 0;
+			h++;
+			field_hour.nodeValue = h < 10 ? '0'+h : h;
 		}
 	};
 
@@ -60,10 +55,10 @@ StopwatchDisplay = function() {
 			interval_id = setInterval(interval_func, 100);
 		},
 		reset_stopwatch: function() {
-			p.h = 0;
-			p.m = 0;
-			p.s = 0;
-			p.ms = 0;
+			h = 0;
+			m = 0;
+			s = 0;
+			ms = 0;
 
 			field_hour.nodeValue = '00';
 			field_min.nodeValue = '00';
@@ -71,9 +66,9 @@ StopwatchDisplay = function() {
 		},
 		get_hours: function() {
 			return Math.round((
-				p.h +
-				p.m / 60 +
-				p.s / 3600
+				h +
+				m / 60 +
+				s / 3600
 			) * 100) / 100;
 		}
 	};
