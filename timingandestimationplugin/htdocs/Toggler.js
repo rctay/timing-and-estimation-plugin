@@ -49,7 +49,7 @@ Toggler = function() {
 
 	return {
 		toggler: toggler,
-		init: function(state, field, p_stopwatch, p_btn_flow, p_btn_reset) {
+		init: function(state, field, p_btn_flow, p_btn_reset) {
 			m_state = state;
 			m_field = field;
 

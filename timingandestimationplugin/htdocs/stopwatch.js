@@ -19,7 +19,7 @@ $(document).ready(function() {
 	StopwatchControls.controls.bind("continue", StopwatchDisplay.continue_stopwatch);
 	StopwatchControls.controls.bind("reset", StopwatchDisplay.reset_stopwatch);
 
-	Toggler.init(state, field[0], stopwatch,
+	Toggler.init(state, field[0],
 		StopwatchControls.btn_flow, StopwatchControls.btn_reset);
 
 	Toggler.toggler.bind("show", function() { stopwatch.show("fast") });
