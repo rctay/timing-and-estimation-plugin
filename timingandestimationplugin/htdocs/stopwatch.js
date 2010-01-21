@@ -12,8 +12,9 @@ $(document).ready(function() {
 	var stopwatch = $('<div></div>');
 
 	stopwatch.append(StopwatchDisplay.display);
+	stopwatch.append(StopwatchControls.controls);
 
-	StopwatchControls.init(state, stopwatch);
+	StopwatchControls.init(state);
 
 	StopwatchControls.controls.bind("pause", StopwatchDisplay.pause_stopwatch);
 	StopwatchControls.controls.bind("continue", StopwatchDisplay.continue_stopwatch);

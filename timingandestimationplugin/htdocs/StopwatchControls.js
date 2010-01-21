@@ -44,10 +44,8 @@ StopwatchControls = function() {
 		btn_reset: btn_reset,
 		controls: controls,
 
-		init: function(state, p_stopwatch) {
+		init: function(state) {
 			m_state = state;
-
-			p_stopwatch.append(controls);
 		}
 	};
 }();
