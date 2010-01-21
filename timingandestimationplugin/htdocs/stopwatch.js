@@ -91,22 +91,23 @@ $(document).ready(function() {
 
 		btn_flow.click(function() {
 			if (TracStopwatchPlugin.running) {
+				StopwatchDisplay.pause_stopwatch();
+
 				toggler[0].firstChild.nodeValue = 'Use stopwatch value';
 				toggler.show("fast");
-				TracStopwatchPlugin.use_value = true;
 
-				StopwatchDisplay.pause_stopwatch();
 				btn_flow.text('Continue');
 				btn_reset.show();
 			} else {
-				toggler.hide("fast");
-				TracStopwatchPlugin.use_value = false;
-
 				StopwatchDisplay.continue_stopwatch();
+
+				toggler.hide("fast");
+
 				btn_flow.text('Pause');
 				btn_reset.hide();
 			}
 			TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
+			TracStopwatchPlugin.use_value = !TracStopwatchPlugin.running;
 			TracStopwatchPlugin.reset = false;
 		});
 
