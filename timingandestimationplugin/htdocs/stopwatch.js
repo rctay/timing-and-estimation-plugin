@@ -8,9 +8,8 @@ $(document).ready(function() {
 		reset: false,
 		use_value: false
 	};
-	var stopwatch;
+	var stopwatch = $('<div></div>');
 
-	stopwatch = $('<div></div>');
 	StopwatchDisplay.init(stopwatch);
 
 	StopwatchControls.init(state, stopwatch);
