@@ -133,14 +133,14 @@ $(document).ready(function() {
 
 	/* toggles the stopwatch (and controls) with a simple slide */
 	Toggler = function() {
-		var toggler_should_show = true;
+		var should_show = true;
 		toggler = $('<div>Show stopwatch</div>')
 		toggler.click(function() {
-			toggler_should_show = !toggler_should_show;
+			should_show = !should_show;
 		});
 		toggler.click(
 			function() {
-				if (toggler_should_show)
+				if (should_show)
 					return;
 				if (TracStopwatchPlugin.running)
 					return false;
@@ -156,7 +156,7 @@ $(document).ready(function() {
 		);
 		toggler.click(
 			function() {
-				if (!toggler_should_show)
+				if (!should_show)
 					return;
 				if (TracStopwatchPlugin.reset)
 					this.firstChild.nodeValue = 'Hide stopwatch';
@@ -183,7 +183,7 @@ $(document).ready(function() {
 				StopwatchControls.btn_reset.click(btn_reset_click);
 
 				toggler.click(function() {
-					if (toggler_should_show)
+					if (should_show)
 						p_stopwatch.show("fast");
 					else
 						p_stopwatch.hide("fast");
