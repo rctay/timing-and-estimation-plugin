@@ -151,7 +151,6 @@ $(document).ready(function() {
 				) * 100) / 100;
 			}
 			this.firstChild.nodeValue = 'Show stopwatch';
-			stopwatch.hide("fast");
 		}
 	);
 	toggler.click(
@@ -162,7 +161,6 @@ $(document).ready(function() {
 				this.firstChild.nodeValue = 'Hide stopwatch';
 			else
 				this.firstChild.nodeValue = 'Use stopwatch value';
-			stopwatch.show("fast");
 		}
 	);
 	StopwatchControls.btn_flow.click(function() {
@@ -176,6 +174,12 @@ $(document).ready(function() {
 	StopwatchControls.btn_reset.click(function() {
 		if (TracStopwatchPlugin.reset && !TracStopwatchPlugin.running)
 			toggler[0].firstChild.nodeValue = 'Hide stopwatch';
+	});
+	toggler.click(function() {
+		if (toggler_should_show)
+			stopwatch.show("fast");
+		else
+			stopwatch.hide("fast");
 	});
 
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
