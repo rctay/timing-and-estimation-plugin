@@ -5,6 +5,7 @@
 /* toggles the stopwatch (and controls) with a simple slide */
 Toggler = function() {
 	var m_state;
+	var m_field;
 
 	var should_show = true;
 	var toggler = $('<div>Show stopwatch</div>');
@@ -18,7 +19,7 @@ Toggler = function() {
 			if (m_state.running)
 				return false;
 			if (m_state.use_value) {
-				$("input#field-hours")[0].value = Math.round((
+				m_field.value = Math.round((
 					StopwatchDisplay.interval_params.h +
 					StopwatchDisplay.interval_params.m / 60 +
 					StopwatchDisplay.interval_params.s / 3600
@@ -52,8 +53,9 @@ Toggler = function() {
 
 	return {
 		toggler: toggler,
-		init: function(state, p_stopwatch, p_btn_flow, p_btn_reset) {
+		init: function(state, field, p_stopwatch, p_btn_flow, p_btn_reset) {
 			m_state = state;
+			m_field = field;
 
 			toggler.click(function() {
 				if (should_show)
