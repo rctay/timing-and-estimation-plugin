@@ -2,12 +2,6 @@
  * Copyright (C) 2010, Tay Ray Chuan
  */
 
-var TracStopwatchPlugin = {
-	running: false,
-	reset: false,
-	use_value: false
-};
-
 /*
  * add buttons to control the stopwatch
  *
@@ -81,11 +75,12 @@ StopwatchDisplay = function() {
 }();
 
 StopwatchControls = function() {
+	var m_state;
 	var btn_flow = $('<div style="float: left"></div>');
 	var btn_reset = $('<div style="float: left">Reset</div>');
 
 	btn_flow.click(function() {
-		if (TracStopwatchPlugin.running) {
+		if (m_state.running) {
 			StopwatchDisplay.pause_stopwatch();
 
 			btn_flow.text('Continue');
@@ -96,26 +91,28 @@ StopwatchControls = function() {
 			btn_flow.text('Pause');
 			btn_reset.hide();
 		}
-		TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
-		TracStopwatchPlugin.use_value = !TracStopwatchPlugin.running;
-		TracStopwatchPlugin.reset = false;
+		m_state.running = !m_state.running;
+		m_state.use_value = !m_state.running;
+		m_state.reset = false;
 	});
 
 	btn_reset.click(function() {
-		if (TracStopwatchPlugin.running) return;
+		if (m_state.running) return;
 
 		StopwatchDisplay.reset_stopwatch();
 		btn_flow.text('Start');
 		btn_reset.hide();
-		TracStopwatchPlugin.running = false;
-		TracStopwatchPlugin.reset = true;
+		m_state.running = false;
+		m_state.reset = true;
 	});
 
 	return {
 		btn_flow: btn_flow,
 		btn_reset: btn_reset,
 
-		init: function(p_stopwatch) {
+		init: function(state, p_stopwatch) {
+			m_state = state;
+
 			p_stopwatch.append($('<div></div>')
 				.append(btn_flow)
 				.append(btn_reset));
@@ -134,9 +131,9 @@ Toggler = function() {
 		function() {
 			if (should_show)
 				return;
-			if (TracStopwatchPlugin.running)
+			if (m_state.running)
 				return false;
-			if (TracStopwatchPlugin.use_value) {
+			if (m_state.use_value) {
 				$("input#field-hours")[0].value = Math.round((
 					StopwatchDisplay.interval_params.h +
 					StopwatchDisplay.interval_params.m / 60 +
@@ -150,14 +147,14 @@ Toggler = function() {
 		function() {
 			if (!should_show)
 				return;
-			if (TracStopwatchPlugin.reset)
+			if (m_state.reset)
 				this.firstChild.nodeValue = 'Hide stopwatch';
 			else
 				this.firstChild.nodeValue = 'Use stopwatch value';
 		}
 	);
 	var btn_flow_click = function() {
-		if (TracStopwatchPlugin.running) {
+		if (m_state.running) {
 			toggler.hide("fast");
 		} else {
 			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
@@ -165,13 +162,15 @@ Toggler = function() {
 		}
 	};
 	var btn_reset_click = function() {
-		if (TracStopwatchPlugin.reset && !TracStopwatchPlugin.running)
+		if (m_state.reset && !m_state.running)
 			toggler[0].firstChild.nodeValue = 'Hide stopwatch';
 	};
 
 	return {
 		toggler: toggler,
-		init: function(p_stopwatch, p_btn_flow, p_btn_reset) {
+		init: function(state, p_stopwatch, p_btn_flow, p_btn_reset) {
+			m_state = state;
+
 			toggler.click(function() {
 				if (should_show)
 					p_stopwatch.show("fast");
@@ -186,14 +185,19 @@ Toggler = function() {
 }();
 
 $(document).ready(function() {
+	var state = {
+		running: false,
+		reset: false,
+		use_value: false
+	};
 	var stopwatch;
 
 	stopwatch = $('<div></div>');
 	StopwatchDisplay.init(stopwatch);
 
-	StopwatchControls.init(stopwatch);
+	StopwatchControls.init(state, stopwatch);
 
-	Toggler.init(stopwatch,
+	Toggler.init(state, stopwatch,
 		StopwatchControls.btn_flow, StopwatchControls.btn_reset);
 
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
