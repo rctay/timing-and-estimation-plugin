@@ -24,7 +24,7 @@ jQuery(function($) {
 
 	Toggler.toggler.bind("show", function() { stopwatch.show("fast") });
 	Toggler.toggler.bind("hide", function() {
-		if (state.use_value)	field.value = StopwatchDisplay.get_hours();
+		if (state.use_value)	field[0].value = StopwatchDisplay.get_hours();
 	});
 	Toggler.toggler.bind("hide", function() { stopwatch.hide("fast") });
 
