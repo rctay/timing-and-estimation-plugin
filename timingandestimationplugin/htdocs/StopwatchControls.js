@@ -11,12 +11,12 @@ StopwatchControls = function() {
 
 	btn_flow.click(function() {
 		if (m_state.running) {
-			StopwatchDisplay.pause_stopwatch();
+			controls.trigger('pause');
 
 			btn_flow.text('Continue');
 			btn_reset.show();
 		} else {
-			StopwatchDisplay.continue_stopwatch();
+			controls.trigger('continue');
 
 			btn_flow.text('Pause');
 			btn_reset.hide();
@@ -29,7 +29,8 @@ StopwatchControls = function() {
 	btn_reset.click(function() {
 		if (m_state.running) return;
 
-		StopwatchDisplay.reset_stopwatch();
+		controls.trigger('reset');
+
 		btn_flow.text('Start');
 		btn_reset.hide();
 		m_state.running = false;
@@ -39,6 +40,7 @@ StopwatchControls = function() {
 	return {
 		btn_flow: btn_flow,
 		btn_reset: btn_reset,
+		controls: controls,
 
 		init: function(state, p_stopwatch) {
 			m_state = state;

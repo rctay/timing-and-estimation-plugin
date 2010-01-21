@@ -15,6 +15,10 @@ $(document).ready(function() {
 
 	StopwatchControls.init(state, stopwatch);
 
+	StopwatchControls.controls.bind("pause", StopwatchDisplay.pause_stopwatch);
+	StopwatchControls.controls.bind("continue", StopwatchDisplay.continue_stopwatch);
+	StopwatchControls.controls.bind("reset", StopwatchDisplay.reset_stopwatch);
+
 	Toggler.init(state, field[0], stopwatch,
 		StopwatchControls.btn_flow, StopwatchControls.btn_reset);
 
