@@ -15,6 +15,7 @@ from query_webui import *
 from reportmanager import CustomReportManager
 from statuses import *
 from reports import all_reports
+from stopwatch import *
 
 
 ## report columns
