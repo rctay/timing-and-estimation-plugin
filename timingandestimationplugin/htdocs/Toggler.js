@@ -49,12 +49,12 @@ Toggler = function() {
 
 	return {
 		toggler: toggler,
-		init: function(state, field, p_btn_flow, p_btn_reset) {
+		btn_flow_click: btn_flow_click,
+		btn_reset_click: btn_reset_click,
+
+		init: function(state, field) {
 			m_state = state;
 			m_field = field;
-
-			p_btn_flow.click(btn_flow_click);
-			p_btn_reset.click(btn_reset_click);
 		}
 	};
 }();
