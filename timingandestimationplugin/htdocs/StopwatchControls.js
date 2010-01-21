@@ -5,9 +5,11 @@
 StopwatchControls = function() {
 	var m_state;
 
-	var controls = $('<div></div>');
 	var btn_flow = $('<div style="float: left"></div>');
 	var btn_reset = $('<div style="float: left">Reset</div>');
+	var controls = $('<div></div>')
+		.append(btn_flow)
+		.append(btn_reset);
 
 	btn_flow.click(function() {
 		if (m_state.running) {
@@ -45,9 +47,7 @@ StopwatchControls = function() {
 		init: function(state, p_stopwatch) {
 			m_state = state;
 
-			p_stopwatch.append(controls
-				.append(btn_flow)
-				.append(btn_reset));
+			p_stopwatch.append(controls);
 		}
 	};
 }();
