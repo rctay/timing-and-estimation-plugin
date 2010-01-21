@@ -27,19 +27,14 @@ $(document).ready(function() {
 	 * Button 'flow' has states: start -> stop <-> continue
 	 * Button 'reset' has state: reset
 	 */
-	var btn_flow = $('<div style="float: left"></div>');
-	var btn_reset = $('<div style="float: left">Reset</div>');
-	stopwatch.append($('<div></div>')
-		.append(btn_flow)
-		.append(btn_reset));
 
 	var interval_id, interval_func, interval_params;
 	var pause_stopwatch_display = function() {
 		clearInterval(interval_id);
 		interval_id = null;
 
-		btn_flow.text('Continue');
-		btn_reset.show();
+		StopwatchControls.btn_flow.text('Continue');
+		StopwatchControls.btn_reset.show();
 	};
 	var continue_stopwatch_display = function() {
 		interval_id = setInterval(function(p) {
@@ -60,8 +55,8 @@ $(document).ready(function() {
 			}
 		}, 100, interval_params);
 
-		btn_flow.text('Pause');
-		btn_reset.hide();
+		StopwatchControls.btn_flow.text('Pause');
+		StopwatchControls.btn_reset.hide();
 	};
 	var reset_stopwatch_display = function() {
 		interval_params = {
@@ -74,8 +69,8 @@ $(document).ready(function() {
 		field_min.nodeValue = '00';
 		field_sec.nodeValue = '00';
 
-		btn_flow.text('Start');
-		btn_reset.hide();
+		StopwatchControls.btn_flow.text('Start');
+		StopwatchControls.btn_reset.hide();
 	};
 
 	var TracStopwatchPlugin = {
@@ -83,29 +78,46 @@ $(document).ready(function() {
 		reset: false,
 		use_value: false
 	};
-	btn_flow.click(function() {
-		if (TracStopwatchPlugin.running) {
-			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
-			toggler.show("fast");
-			TracStopwatchPlugin.use_value = true;
-			pause_stopwatch_display();
-		} else {
-			toggler.hide("fast");
-			TracStopwatchPlugin.use_value = false;
-			continue_stopwatch_display();
-		}
-		TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
-		TracStopwatchPlugin.reset = false;
-	});
+	StopwatchControls = function() {
+		var btn_flow = $('<div style="float: left"></div>');
+		var btn_reset = $('<div style="float: left">Reset</div>');
 
-	btn_reset.click(function() {
-		if (TracStopwatchPlugin.running) return;
+		btn_flow.click(function() {
+			if (TracStopwatchPlugin.running) {
+				toggler[0].firstChild.nodeValue = 'Use stopwatch value';
+				toggler.show("fast");
+				TracStopwatchPlugin.use_value = true;
+				pause_stopwatch_display();
+			} else {
+				toggler.hide("fast");
+				TracStopwatchPlugin.use_value = false;
+				continue_stopwatch_display();
+			}
+			TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
+			TracStopwatchPlugin.reset = false;
+		});
 
-		reset_stopwatch_display();
-		toggler[0].firstChild.nodeValue = 'Hide stopwatch';
-		TracStopwatchPlugin.running = false;
-		TracStopwatchPlugin.reset = true;
-	});
+		btn_reset.click(function() {
+			if (TracStopwatchPlugin.running) return;
+
+			reset_stopwatch_display();
+			toggler[0].firstChild.nodeValue = 'Hide stopwatch';
+			TracStopwatchPlugin.running = false;
+			TracStopwatchPlugin.reset = true;
+		});
+
+		return {
+			btn_flow: btn_flow,
+			btn_reset: btn_reset,
+
+			init: function(p_stopwatch) {
+				p_stopwatch.append($('<div></div>')
+					.append(btn_flow)
+					.append(btn_reset));
+			}
+		};
+	}();
+	StopwatchControls.init(stopwatch);
 
 	/* toggles the stopwatch (and controls) with a simple slide */
 	toggler = $('<div>Show stopwatch</div>')
