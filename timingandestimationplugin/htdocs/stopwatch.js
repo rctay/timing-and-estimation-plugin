@@ -2,6 +2,12 @@
  * Copyright (C) 2010, Tay Ray Chuan
  */
 
+var TracStopwatchPlugin = {
+	running: false,
+	reset: false,
+	use_value: false
+};
+
 /*
  * add buttons to control the stopwatch
  *
@@ -80,11 +86,6 @@ $(document).ready(function() {
 	stopwatch = $('<div></div>');
 	StopwatchDisplay.init(stopwatch);
 
-	var TracStopwatchPlugin = {
-		running: false,
-		reset: false,
-		use_value: false
-	};
 	StopwatchControls = function() {
 		var btn_flow = $('<div style="float: left"></div>');
 		var btn_reset = $('<div style="float: left">Reset</div>');
