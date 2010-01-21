@@ -11,7 +11,7 @@ $(document).ready(function() {
 	 * Button 'flow' has states: start -> stop <-> continue
 	 * Button 'reset' has state: reset
 	 */
-	Stopwatch = function() {
+	StopwatchDisplay = function() {
 		/* the stopwatch (looks like 00:00:00) */
 		var field_hour = $('<span>00</span>');
 		var field_min = $('<span>00</span>');
@@ -57,20 +57,20 @@ $(document).ready(function() {
 					.append(':')
 					.append(field_sec);
 			},
-			pause_stopwatch_display: function() {
+			pause_stopwatch: function() {
 				clearInterval(interval_id);
 				interval_id = null;
 
 				StopwatchControls.btn_flow.text('Continue');
 				StopwatchControls.btn_reset.show();
 			},
-			continue_stopwatch_display: function() {
+			continue_stopwatch: function() {
 				interval_id = setInterval(interval_func, 100);
 
 				StopwatchControls.btn_flow.text('Pause');
 				StopwatchControls.btn_reset.hide();
 			},
-			reset_stopwatch_display: function() {
+			reset_stopwatch: function() {
 				p.h = 0;
 				p.m = 0;
 				p.s = 0;
@@ -86,7 +86,7 @@ $(document).ready(function() {
 		};
 	}();
 	stopwatch = $('<div></div>');
-	Stopwatch.init(stopwatch);
+	StopwatchDisplay.init(stopwatch);
 
 	var TracStopwatchPlugin = {
 		running: false,
@@ -102,11 +102,11 @@ $(document).ready(function() {
 				toggler[0].firstChild.nodeValue = 'Use stopwatch value';
 				toggler.show("fast");
 				TracStopwatchPlugin.use_value = true;
-				Stopwatch.pause_stopwatch_display();
+				StopwatchDisplay.pause_stopwatch();
 			} else {
 				toggler.hide("fast");
 				TracStopwatchPlugin.use_value = false;
-				Stopwatch.continue_stopwatch_display();
+				StopwatchDisplay.continue_stopwatch();
 			}
 			TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
 			TracStopwatchPlugin.reset = false;
@@ -115,7 +115,7 @@ $(document).ready(function() {
 		btn_reset.click(function() {
 			if (TracStopwatchPlugin.running) return;
 
-			Stopwatch.reset_stopwatch_display();
+			StopwatchDisplay.reset_stopwatch();
 			toggler[0].firstChild.nodeValue = 'Hide stopwatch';
 			TracStopwatchPlugin.running = false;
 			TracStopwatchPlugin.reset = true;
@@ -142,9 +142,9 @@ $(document).ready(function() {
 				return false;
 			if (TracStopwatchPlugin.use_value) {
 				$("input#field-hours")[0].value = Math.round((
-					Stopwatch.interval_params.h +
-					Stopwatch.interval_params.m / 60 +
-					Stopwatch.interval_params.s / 3600
+					StopwatchDisplay.interval_params.h +
+					StopwatchDisplay.interval_params.m / 60 +
+					StopwatchDisplay.interval_params.s / 3600
 				) * 100) / 100;
 			}
 			this.firstChild.nodeValue = 'Show stopwatch';
@@ -167,6 +167,6 @@ $(document).ready(function() {
 		.append(stopwatch));
 
 	/* initialize */
-	Stopwatch.reset_stopwatch_display();
+	StopwatchDisplay.reset_stopwatch();
 	toggler.click();
 })
