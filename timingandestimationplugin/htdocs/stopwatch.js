@@ -124,7 +124,7 @@ StopwatchControls = function() {
 }();
 
 $(document).ready(function() {
-	var toggler, stopwatch;
+	var stopwatch;
 
 	stopwatch = $('<div></div>');
 	StopwatchDisplay.init(stopwatch);
@@ -134,7 +134,7 @@ $(document).ready(function() {
 	/* toggles the stopwatch (and controls) with a simple slide */
 	Toggler = function() {
 		var should_show = true;
-		toggler = $('<div>Show stopwatch</div>')
+		var toggler = $('<div>Show stopwatch</div>');
 		toggler.click(function() {
 			should_show = !should_show;
 		});
@@ -178,6 +178,7 @@ $(document).ready(function() {
 		};
 
 		return {
+			toggler: toggler,
 			init: function(p_stopwatch) {
 				StopwatchControls.btn_flow.click(btn_flow_click);
 				StopwatchControls.btn_reset.click(btn_reset_click);
@@ -197,10 +198,10 @@ $(document).ready(function() {
 	 * field. */
 	$("input#field-hours").after(
 		$('<div></div>')
-		.append(toggler)
+		.append(Toggler.toggler)
 		.append(stopwatch));
 
 	/* initialize */
 	StopwatchControls.btn_reset.click();
-	toggler.click();
+	Toggler.toggler.click();
 })
