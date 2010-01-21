@@ -22,6 +22,9 @@ $(document).ready(function() {
 	Toggler.init(state, field[0], stopwatch,
 		StopwatchControls.btn_flow, StopwatchControls.btn_reset);
 
+	Toggler.toggler.bind("show", function() { stopwatch.show("fast") });
+	Toggler.toggler.bind("hide", function() { stopwatch.hide("fast") });
+
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
 	 * field. */
 	field.after(

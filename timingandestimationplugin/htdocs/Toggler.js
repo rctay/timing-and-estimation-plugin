@@ -10,12 +10,14 @@ Toggler = function() {
 	var should_show = true;
 	var toggler = $('<div>Show stopwatch</div>');
 	toggler.click(function() {
-		should_show = !should_show;
+		if (should_show = !should_show) {
+			$(this).trigger("show");
+		} else
+			$(this).trigger("hide");
 	});
-	toggler.click(
+
+	toggler.bind("show",
 		function() {
-			if (should_show)
-				return;
 			if (m_state.running)
 				return false;
 			if (m_state.use_value) {
@@ -28,10 +30,8 @@ Toggler = function() {
 			this.firstChild.nodeValue = 'Show stopwatch';
 		}
 	);
-	toggler.click(
+	toggler.bind("hide",
 		function() {
-			if (!should_show)
-				return;
 			if (m_state.reset)
 				this.firstChild.nodeValue = 'Hide stopwatch';
 			else
@@ -56,13 +56,6 @@ Toggler = function() {
 		init: function(state, field, p_stopwatch, p_btn_flow, p_btn_reset) {
 			m_state = state;
 			m_field = field;
-
-			toggler.click(function() {
-				if (should_show)
-					p_stopwatch.show("fast");
-				else
-					p_stopwatch.hide("fast");
-			});
 
 			p_btn_flow.click(btn_flow_click);
 			p_btn_reset.click(btn_reset_click);
