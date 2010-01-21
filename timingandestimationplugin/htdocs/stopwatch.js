@@ -80,54 +80,55 @@ StopwatchDisplay = function() {
 	};
 }();
 
+StopwatchControls = function() {
+	var btn_flow = $('<div style="float: left"></div>');
+	var btn_reset = $('<div style="float: left">Reset</div>');
+
+	btn_flow.click(function() {
+		if (TracStopwatchPlugin.running) {
+			StopwatchDisplay.pause_stopwatch();
+
+			btn_flow.text('Continue');
+			btn_reset.show();
+		} else {
+			StopwatchDisplay.continue_stopwatch();
+
+			btn_flow.text('Pause');
+			btn_reset.hide();
+		}
+		TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
+		TracStopwatchPlugin.use_value = !TracStopwatchPlugin.running;
+		TracStopwatchPlugin.reset = false;
+	});
+
+	btn_reset.click(function() {
+		if (TracStopwatchPlugin.running) return;
+
+		StopwatchDisplay.reset_stopwatch();
+		btn_flow.text('Start');
+		btn_reset.hide();
+		TracStopwatchPlugin.running = false;
+		TracStopwatchPlugin.reset = true;
+	});
+
+	return {
+		btn_flow: btn_flow,
+		btn_reset: btn_reset,
+
+		init: function(p_stopwatch) {
+			p_stopwatch.append($('<div></div>')
+				.append(btn_flow)
+				.append(btn_reset));
+		}
+	};
+}();
+
 $(document).ready(function() {
 	var toggler, stopwatch;
 
 	stopwatch = $('<div></div>');
 	StopwatchDisplay.init(stopwatch);
 
-	StopwatchControls = function() {
-		var btn_flow = $('<div style="float: left"></div>');
-		var btn_reset = $('<div style="float: left">Reset</div>');
-
-		btn_flow.click(function() {
-			if (TracStopwatchPlugin.running) {
-				StopwatchDisplay.pause_stopwatch();
-
-				btn_flow.text('Continue');
-				btn_reset.show();
-			} else {
-				StopwatchDisplay.continue_stopwatch();
-
-				btn_flow.text('Pause');
-				btn_reset.hide();
-			}
-			TracStopwatchPlugin.running = !TracStopwatchPlugin.running;
-			TracStopwatchPlugin.use_value = !TracStopwatchPlugin.running;
-			TracStopwatchPlugin.reset = false;
-		});
-
-		btn_reset.click(function() {
-			if (TracStopwatchPlugin.running) return;
-
-			StopwatchDisplay.reset_stopwatch();
-			btn_flow.text('Start');
-			btn_reset.hide();
-			TracStopwatchPlugin.running = false;
-			TracStopwatchPlugin.reset = true;
-		});
-
-		return {
-			btn_flow: btn_flow,
-			btn_reset: btn_reset,
-
-			init: function(p_stopwatch) {
-				p_stopwatch.append($('<div></div>')
-					.append(btn_flow)
-					.append(btn_reset));
-			}
-		};
-	}();
 	StopwatchControls.init(stopwatch);
 
 	/* toggles the stopwatch (and controls) with a simple slide */
