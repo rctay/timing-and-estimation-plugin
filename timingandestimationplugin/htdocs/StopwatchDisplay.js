@@ -14,6 +14,13 @@ StopwatchDisplay = function() {
 	var field_min = $('<span>00</span>');
 	var field_sec = $('<span>00</span>');
 
+	var display = $('<div></div>')
+		.append(field_hour)
+		.append(':')
+		.append(field_min)
+		.append(':')
+		.append(field_sec);
+
 	field_hour = field_hour[0].firstChild;
 	field_min = field_min[0].firstChild;
 	field_sec = field_sec[0].firstChild;
@@ -39,14 +46,8 @@ StopwatchDisplay = function() {
 	};
 
 	return {
-		init: function(p_stopwatch) {
-			p_stopwatch
-				.append(field_hour)
-				.append(':')
-				.append(field_min)
-				.append(':')
-				.append(field_sec);
-		},
+		display: display,
+
 		pause_stopwatch: function() {
 			clearInterval(interval_id);
 			interval_id = null;

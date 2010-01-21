@@ -11,7 +11,7 @@ $(document).ready(function() {
 	var field = $("input#field-hours");
 	var stopwatch = $('<div></div>');
 
-	StopwatchDisplay.init(stopwatch);
+	stopwatch.append(StopwatchDisplay.display);
 
 	StopwatchControls.init(state, stopwatch);
 
