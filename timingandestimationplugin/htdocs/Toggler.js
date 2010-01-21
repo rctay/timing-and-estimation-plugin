@@ -16,12 +16,12 @@ jQuery(function($) {
 				$(this).trigger("hide");
 		});
 
-		toggler.bind("show",
+		toggler.bind("hide",
 			function() {
 				this.firstChild.nodeValue = 'Show stopwatch';
 			}
 		);
-		toggler.bind("hide",
+		toggler.bind("show",
 			function() {
 				if (m_state.reset)
 					this.firstChild.nodeValue = 'Hide stopwatch';

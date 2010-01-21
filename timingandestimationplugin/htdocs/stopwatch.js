@@ -23,7 +23,7 @@ jQuery(function($) {
 	Toggler.init(state);
 
 	Toggler.toggler.bind("show", function() { stopwatch.show("fast") });
-	Toggler.toggler.bind("show", function() {
+	Toggler.toggler.bind("hide", function() {
 		if (state.use_value)	field.value = StopwatchDisplay.get_hours();
 	});
 	Toggler.toggler.bind("hide", function() { stopwatch.hide("fast") });
