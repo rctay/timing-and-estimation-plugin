@@ -4,6 +4,8 @@
 
 /* toggles the stopwatch (and controls) with a simple slide */
 Toggler = function() {
+	var m_state;
+
 	var should_show = true;
 	var toggler = $('<div>Show stopwatch</div>');
 	toggler.click(function() {
