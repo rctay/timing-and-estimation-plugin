@@ -19,8 +19,6 @@ jQuery(function($) {
 
 		toggler.bind("show",
 			function() {
-				if (m_state.running)
-					return false;
 				if (m_state.use_value) {
 					m_field.value = StopwatchDisplay.get_hours();
 				}
