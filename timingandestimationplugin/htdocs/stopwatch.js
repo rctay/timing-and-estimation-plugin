@@ -28,8 +28,9 @@ jQuery(function($) {
 	});
 	Toggler.toggler.bind("hide", function() { stopwatch.hide("fast") });
 
-	StopwatchControls.btn_flow.click(Toggler.btn_flow_click);
-	StopwatchControls.btn_reset.click(Toggler.btn_reset_click);
+	StopwatchControls.controls.bind("pause", Toggler.pause_handler);
+	StopwatchControls.controls.bind("continue", Toggler.continue_handler);
+	StopwatchControls.controls.bind("reset", Toggler.reset_handler);
 
 	/* put toggler and stopwatch in a div, then put it below the hours <input>
 	 * field. */
@@ -40,6 +41,6 @@ jQuery(function($) {
 		.append(stopwatch));
 
 	/* initialize */
-	StopwatchControls.btn_reset.click();
-	Toggler.toggler.click();
+	StopwatchControls.controls.trigger("reset");
+	Toggler.toggler.trigger("hide");
 })

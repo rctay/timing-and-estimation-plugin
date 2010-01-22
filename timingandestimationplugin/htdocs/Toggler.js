@@ -9,8 +9,12 @@ jQuery(function($) {
 
 		var should_show = true;
 		var toggler = $('<div class="stopwatch-button">Show stopwatch</div>');
+
+		toggler.bind("show", function() { should_show = true; });
+		toggler.bind("hide", function() { should_show = false; });
+
 		toggler.click(function() {
-			if (should_show = !should_show) {
+			if (!should_show) {
 				$(this).trigger("show");
 			} else
 				$(this).trigger("hide");
@@ -29,23 +33,23 @@ jQuery(function($) {
 					this.firstChild.nodeValue = 'Use stopwatch value';
 			}
 		);
-		var btn_flow_click = function() {
-			if (m_state.running) {
-				toggler.hide("fast");
-			} else {
-				toggler[0].firstChild.nodeValue = 'Use stopwatch value';
-				toggler.show("fast");
-			}
+		var continue_handler = function() {
+			toggler.hide("fast");
 		};
-		var btn_reset_click = function() {
-			if (m_state.reset && !m_state.running)
-				toggler[0].firstChild.nodeValue = 'Hide stopwatch';
+		var pause_handler = function() {
+			toggler[0].firstChild.nodeValue = 'Use stopwatch value';
+			toggler.show("fast");
+		};
+		var reset_handler = function() {
+			toggler[0].firstChild.nodeValue = 'Hide stopwatch';
 		};
 
 		return {
 			toggler: toggler,
-			btn_flow_click: btn_flow_click,
-			btn_reset_click: btn_reset_click,
+
+			continue_handler: continue_handler,
+			pause_handler: pause_handler,
+			reset_handler: reset_handler,
 
 			init: function(state) {
 				m_state = state;
