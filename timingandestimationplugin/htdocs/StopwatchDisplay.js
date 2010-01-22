@@ -57,6 +57,10 @@ jQuery(function($) {
 				interval_id = null;
 			},
 			continue_stopwatch: function() {
+				/*
+				 * We really want to do an add (of the seconds on the display)
+				 * - which is what we get when start_time is subtracted later.
+				 */
 				start_time = (new Date()).getTime() - s * 1000;
 				interval_id = setInterval(interval_func, 100);
 			},
