@@ -27,11 +27,12 @@ jQuery(function($) {
 		field_sec = field_sec[0].firstChild;
 
 		var interval_id, interval_func;
-		var h = 0, m = 0, s = 0, ms = 0;
+		var h = 0, m = 0, s = 0;
+		var start_time;
 		var interval_func = function() {
-			if (++ms>=10) {
-				ms = 0;
-				s++;
+			var s_tmp = Math.floor(((new Date()).getTime() - start_time) / 1000);
+			if (s_tmp > s) {
+				s = s_tmp;
 				field_sec.nodeValue = s < 10 ? '0'+s : s;
 			}
 			if (s>=60) {
@@ -56,13 +57,13 @@ jQuery(function($) {
 				interval_id = null;
 			},
 			continue_stopwatch: function() {
+				start_time = (new Date()).getTime() - s * 1000;
 				interval_id = setInterval(interval_func, 100);
 			},
 			reset_stopwatch: function() {
 				h = 0;
 				m = 0;
 				s = 0;
-				ms = 0;
 
 				field_hour.nodeValue = '00';
 				field_min.nodeValue = '00';
