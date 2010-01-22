@@ -4,7 +4,7 @@ Stopwatch widget for timingandestimationplugin
 Summary
 -------
 
-At the time of writing, the TaE maintainer, Russ, has been very positive about this widget and is working to include it in the main TaE repo/distribution.
+The TaE maintainer, Russ, has been very positive about this widget. At the time of writing, he is working to include it in the main TaE repo/distribution.
 
 In the meantime, you can get this in two ways:
 
