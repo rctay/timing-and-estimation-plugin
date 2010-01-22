@@ -10,9 +10,10 @@ jQuery(function($) {
 	};
 	var field = $("input#field-hours");
 	var stopwatch = $('<div></div>');
-
 	stopwatch.append(StopwatchDisplay.display);
+	stopwatch.append($('<div class="clearer"></div>'));
 	stopwatch.append(StopwatchControls.controls);
+	stopwatch.append($('<div class="clearer"></div>'));
 
 	StopwatchControls.init(state);
 
@@ -36,6 +37,7 @@ jQuery(function($) {
 	field.after(
 		$('<div></div>')
 		.append(Toggler.toggler)
+		.append($('<div class="clearer"></div>'))
 		.append(stopwatch));
 
 	/* initialize */

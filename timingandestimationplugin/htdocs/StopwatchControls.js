@@ -5,8 +5,8 @@ jQuery(function($) {
 	StopwatchControls = function() {
 		var m_state;
 
-		var btn_flow = $('<div style="float: left"></div>');
-		var btn_reset = $('<div style="float: left">Reset</div>');
+		var btn_flow = $('<div class="stopwatch-button" style="float: left"></div>');
+		var btn_reset = $('<div class="stopwatch-button" style="float: left">Reset</div>');
 		var controls = $('<div></div>')
 			.append(btn_flow)
 			.append(btn_reset);
