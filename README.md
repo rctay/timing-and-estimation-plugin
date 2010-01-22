@@ -12,13 +12,14 @@ In the meantime, you can get this in two ways:
 
 2. The 'export' branch, which has adds/replaces files in TaE.
 
-Files
+Files (new/modified)
 -----
 
-	timingandestimationplugin/api.py                   |    1 +
-	.../htdocs/StopwatchControls.js                    |   52 +++++++++++++
-	.../htdocs/StopwatchDisplay.js                     |   78 ++++++++++++++++++++
-	timingandestimationplugin/htdocs/Toggler.js        |   55 ++++++++++++++
-	timingandestimationplugin/htdocs/stopwatch.js      |   44 +++++++++++
-	timingandestimationplugin/stopwatch.py             |   32 ++++++++
-	6 files changed, 262 insertions(+), 0 deletions(-)
+	README.md
+	setup.py
+	timingandestimationplugin/api.py
+	timingandestimationplugin/htdocs/StopwatchControls.js
+	timingandestimationplugin/htdocs/StopwatchDisplay.js
+	timingandestimationplugin/htdocs/Toggler.js
+	timingandestimationplugin/htdocs/stopwatch.js
+	timingandestimationplugin/stopwatch.py
