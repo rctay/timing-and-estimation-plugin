@@ -11,6 +11,7 @@ jQuery(function($) {
 			.append(btn_flow)
 			.append(btn_reset);
 
+		/* first handlers to run; set states */
 		controls.bind('pause', function() {
 			m_state.running = false;
 			m_state.use_value = true;
@@ -29,6 +30,7 @@ jQuery(function($) {
 			m_state.reset = true;
 		});
 
+		/* make buttons trigger events */
 		btn_flow.click(function() {
 			if (m_state.running)
 				controls.trigger('pause');
@@ -42,6 +44,7 @@ jQuery(function($) {
 			controls.trigger('reset');
 		});
 
+		/* make button states react to events */
 		controls.bind('pause', function() {
 			btn_flow.text('Continue');
 			btn_reset.show();
