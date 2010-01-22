@@ -37,11 +37,13 @@ jQuery(function($) {
 			if (s>=60) {
 				s = 0;
 				m++;
+				field_sec.nodeValue = '00';
 				field_min.nodeValue = m < 10 ? '0'+m : m;
 			}
 			if (m>=60) {
 				m = 0;
 				h++;
+				field_min.nodeValue = '00';
 				field_hour.nodeValue = h < 10 ? '0'+h : h;
 			}
 		};
