@@ -40,6 +40,6 @@ jQuery(function($) {
 		.append(stopwatch));
 
 	/* initialize */
-	StopwatchControls.btn_reset.click();
+	StopwatchControls.controls.trigger("reset");
 	Toggler.toggler.trigger("hide");
 })
