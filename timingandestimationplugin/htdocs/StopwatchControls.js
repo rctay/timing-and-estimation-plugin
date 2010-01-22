@@ -58,8 +58,6 @@ jQuery(function($) {
 		});
 
 		return {
-			btn_flow: btn_flow,
-			btn_reset: btn_reset,
 			controls: controls,
 
 			init: function(state) {
