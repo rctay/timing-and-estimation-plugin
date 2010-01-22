@@ -58,3 +58,7 @@ setup(name=PACKAGE,
 ## Greg Troxel
 ##
 ## Updated the post commit hooks to be inline with upstream trac
+
+## Tay Ray Chuan
+##
+## Added a stopwatch to the ticket pages
