@@ -1,0 +1,9 @@
+.clearer {clear:both; font-size:0px; line-height:0px; height:0px;}
+.stopwatch-button{
+   border: 1px solid #D7D7D7;
+   padding: 2px;
+   font-size:.9em;
+   margin-right:3px;
+   float:left;
+   cursor:pointer;
+}
