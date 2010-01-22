@@ -9,8 +9,12 @@ jQuery(function($) {
 
 		var should_show = true;
 		var toggler = $('<div>Show stopwatch</div>');
+
+		toggler.bind("show", function() { should_show = true; });
+		toggler.bind("hide", function() { should_show = false; });
+
 		toggler.click(function() {
-			if (should_show = !should_show) {
+			if (!should_show) {
 				$(this).trigger("show");
 			} else
 				$(this).trigger("hide");

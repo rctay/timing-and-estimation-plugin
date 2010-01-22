@@ -40,5 +40,5 @@ jQuery(function($) {
 
 	/* initialize */
 	StopwatchControls.btn_reset.click();
-	Toggler.toggler.click();
+	Toggler.toggler.trigger("hide");
 })
