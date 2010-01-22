@@ -8,7 +8,7 @@ jQuery(function($) {
 		var m_state;
 
 		var should_show = true;
-		var toggler = $('<div>Show stopwatch</div>');
+		var toggler = $('<div class="stopwatch-button">Show stopwatch</div>');
 		toggler.click(function() {
 			if (should_show = !should_show) {
 				$(this).trigger("show");

@@ -6,7 +6,7 @@ from trac.core import *
 
 from pkg_resources import resource_filename
 from trac.web.api import IRequestFilter
-from trac.web.chrome import ITemplateProvider, add_script
+from trac.web.chrome import ITemplateProvider, add_script, add_stylesheet
 
 class TicketStopwatch(Component):
     implements(IRequestFilter, ITemplateProvider)
@@ -17,6 +17,7 @@ class TicketStopwatch(Component):
 
     def post_process_request(self, req, template, data, content_type):
         if req.path_info.startswith('/ticket/'):
+            add_stylesheet(req, 'stopwatch/stopwatch.css')
             add_script(req, 'stopwatch/StopwatchDisplay.js')
             add_script(req, 'stopwatch/StopwatchControls.js')
             add_script(req, 'stopwatch/Toggler.js')
