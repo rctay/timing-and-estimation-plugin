@@ -28,7 +28,6 @@ jQuery(function($) {
 
 		var interval_id;
 		var start_time = null;
-		var end_time;
 		var total_time=0 ;
 		var now = function(){ return Math.floor((new Date()).getTime() / 1000);};
 		var interval_func = function() {
