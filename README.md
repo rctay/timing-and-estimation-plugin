@@ -4,22 +4,9 @@ Stopwatch widget for timingandestimationplugin
 Summary
 -------
 
-The TaE maintainer, Russ, has been very positive about this widget. At the time of writing, he is working to include it in the main TaE repo/distribution.
+The TaE maintainer, Russ, has been very positive about this widget and has already integrated the plugin upstream.
 
-In the meantime, you can get this in two ways:
+Although this has already been integrated upstream, I may have some changes here from time to time. I try to pull in the upstream TaE changes to ensure the plugin integrates cleanly.
 
-1. The 'master' branch, which is a ready-for-install replacement of TaE 0.11.
+The 'master' branch has a ready-for-install replacement of TaE 0.11.
 
-2. The 'export' branch, which has adds/replaces files in TaE.
-
-Files (new/modified)
------
-
-	README.md
-	setup.py
-	timingandestimationplugin/api.py
-	timingandestimationplugin/htdocs/StopwatchControls.js
-	timingandestimationplugin/htdocs/StopwatchDisplay.js
-	timingandestimationplugin/htdocs/Toggler.js
-	timingandestimationplugin/htdocs/stopwatch.js
-	timingandestimationplugin/stopwatch.py
