@@ -29,9 +29,11 @@ jQuery(function($) {
 		var interval_id;
 		var start_time = null;
 		var total_time = 0;
-		var now = function(){ return Math.floor((new Date()).getTime() / 1000);};
+		var elapsed = function(){
+			return Math.floor((new Date()).getTime() / 1000) - start_time;
+		};
 		var interval_func = function() {
-			var interval = now() - start_time;
+			var interval = elapsed();
 			var h = 0, m = 0, s = 0;
 			s = interval % 60;
 			m = Math.floor(interval/60) % 60;
@@ -47,7 +49,7 @@ jQuery(function($) {
 			pause_stopwatch: function() {
 				clearInterval(interval_id);
 				interval_id = null;
-				total_time = now() - start_time;
+				total_time = elapsed();
 				start_time = null;
 			},
 			continue_stopwatch: function() {
@@ -55,7 +57,7 @@ jQuery(function($) {
 				 * We really want to do an add (of the time elapsed) - which
 				 * is what we get when start_time is subtracted later.
 				 */
-				start_time = now() - total_time;
+				start_time = Math.floor(((new Date()).getTime() - total_time) / 1000);
 				interval_id = setInterval(interval_func, 100);
 			},
 			reset_stopwatch: function() {
@@ -66,7 +68,7 @@ jQuery(function($) {
 				total_time = 0;
 			},
 			get_hours: function() {
-				var total = (start_time) ? now() - start_time : total_time;
+				var total = (start_time) ? elapsed() : total_time;
 				return Math.round((total / 3600) * 100) / 100;
 			}
 		};
