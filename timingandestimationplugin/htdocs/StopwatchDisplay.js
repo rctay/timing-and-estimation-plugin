@@ -30,10 +30,10 @@ jQuery(function($) {
 		var start_time = null;
 		var total_time = 0;
 		var elapsed = function(){
-			return Math.floor((new Date()).getTime() / 1000) - start_time;
+			return (new Date()).getTime() - start_time;
 		};
 		var interval_func = function() {
-			var interval = elapsed();
+			var interval = Math.floor(elapsed() / 1000);
 			var h = 0, m = 0, s = 0;
 			s = interval % 60;
 			m = Math.floor(interval/60) % 60;
@@ -57,7 +57,7 @@ jQuery(function($) {
 				 * We really want to do an add (of the time elapsed) - which
 				 * is what we get when start_time is subtracted later.
 				 */
-				start_time = Math.floor(((new Date()).getTime() - total_time) / 1000);
+				start_time = (new Date()).getTime() - total_time;
 				interval_id = setInterval(interval_func, 100);
 			},
 			reset_stopwatch: function() {
@@ -72,7 +72,7 @@ jQuery(function($) {
 			 * Can only be called when stopwatch is paused.
 			 */
 			get_hours: function() {
-				return Math.round((total_time / 3600) * 100) / 100;
+				return Math.round((total_time / 3600000) * 100) / 100;
 			}
 		};
 	}();
