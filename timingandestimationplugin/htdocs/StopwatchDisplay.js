@@ -29,11 +29,8 @@ jQuery(function($) {
 		var interval_id;
 		var start_time = null;
 		var total_time = 0;
-		var elapsed = function(){
-			return (new Date()).getTime() - start_time;
-		};
 		var interval_func = function() {
-			var interval = Math.floor(elapsed() / 1000);
+			var interval = Math.floor(((new Date()).getTime() - start_time) / 1000);
 			var h = 0, m = 0, s = 0;
 			s = interval % 60;
 			m = Math.floor(interval/60) % 60;
@@ -49,7 +46,7 @@ jQuery(function($) {
 			pause_stopwatch: function() {
 				clearInterval(interval_id);
 				interval_id = null;
-				total_time = elapsed();
+				total_time = (new Date()).getTime() - start_time;
 				start_time = null;
 			},
 			continue_stopwatch: function() {
