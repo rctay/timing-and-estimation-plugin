@@ -28,10 +28,10 @@ jQuery(function($) {
 
 		var interval_id;
 		var start_time = null;
-		var total_time=0 ;
+		var total_time = 0;
 		var now = function(){ return Math.floor((new Date()).getTime() / 1000);};
 		var interval_func = function() {
-			var interval = (now() - start_time)+total_time;
+			var interval = (now() - start_time) + total_time;
 			var h = 0, m = 0, s = 0;
 			s = interval % 60;
 			m = Math.floor(interval/60) % 60;
@@ -62,13 +62,13 @@ jQuery(function($) {
 				field_hour.nodeValue = '00';
 				field_min.nodeValue = '00';
 				field_sec.nodeValue = '00';
-				start_time=null;
-				total_time=0;
+				start_time = null;
+				total_time = 0;
 			},
 			get_hours: function() {
 				var total = total_time;
-				if (start_time) total += (now() - start_time);
-				return Math.round( ( total / 3600 ) * 100) / 100;
+				if (start_time) total += now() - start_time;
+				return Math.round((total / 3600) * 100) / 100;
 			}
 		};
 	}();
