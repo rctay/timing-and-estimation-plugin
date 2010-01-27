@@ -67,9 +67,12 @@ jQuery(function($) {
 				start_time = null;
 				total_time = 0;
 			},
+
+			/*
+			 * Can only be called when stopwatch is paused.
+			 */
 			get_hours: function() {
-				var total = (start_time) ? elapsed() : total_time;
-				return Math.round((total / 3600) * 100) / 100;
+				return Math.round((total_time / 3600) * 100) / 100;
 			}
 		};
 	}();
