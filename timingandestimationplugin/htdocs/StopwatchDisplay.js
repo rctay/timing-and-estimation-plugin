@@ -29,8 +29,10 @@ jQuery(function($) {
 		var interval_id, interval_func;
 		var h = 0, m = 0, s = 0;
 		var start_time;
+		var total_time;
 		var interval_func = function() {
-			var s_tmp = Math.floor(((new Date()).getTime() - start_time) / 1000);
+			total_time = (new Date()).getTime() - start_time;
+			var s_tmp = Math.floor(total_time / 1000);
 			if (s_tmp > s) {
 				s = s_tmp;
 				field_sec.nodeValue = s < 10 ? '0'+s : s;
@@ -61,13 +63,14 @@ jQuery(function($) {
 				 * We really want to do an add (of the seconds on the display)
 				 * - which is what we get when start_time is subtracted later.
 				 */
-				start_time = (new Date()).getTime() - s * 1000;
+				start_time = (new Date()).getTime() - total_time;
 				interval_id = setInterval(interval_func, 100);
 			},
 			reset_stopwatch: function() {
 				h = 0;
 				m = 0;
 				s = 0;
+				total_time = 0;
 
 				field_hour.nodeValue = '00';
 				field_min.nodeValue = '00';
