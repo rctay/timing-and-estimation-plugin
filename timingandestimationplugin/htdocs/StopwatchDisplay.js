@@ -26,26 +26,18 @@ jQuery(function($) {
 		field_min = field_min[0].firstChild;
 		field_sec = field_sec[0].firstChild;
 
-		var interval_id, interval_func;
-		var h = 0, m = 0, s = 0, ms = 0;
+		var interval_id;
+		var start_time = null;
+		var total_time = 0;
 		var interval_func = function() {
-			if (++ms>=10) {
-				ms = 0;
-				s++;
-				field_sec.nodeValue = s < 10 ? '0'+s : s;
-			}
-			if (s>=60) {
-				s = 0;
-				m++;
-				field_sec.nodeValue = '00';
-				field_min.nodeValue = m < 10 ? '0'+m : m;
-			}
-			if (m>=60) {
-				m = 0;
-				h++;
-				field_min.nodeValue = '00';
-				field_hour.nodeValue = h < 10 ? '0'+h : h;
-			}
+			var interval = Math.floor(((new Date()).getTime() - start_time) / 1000);
+			var h = 0, m = 0, s = 0;
+			s = interval % 60;
+			m = Math.floor(interval/60) % 60;
+			h = Math.floor(interval/3600);
+			field_sec.nodeValue = s < 10 ? '0'+s : s;
+			field_min.nodeValue = m < 10 ? '0'+m : m;
+			field_hour.nodeValue = h < 10 ? '0'+h : h;
 		};
 
 		return {
@@ -54,26 +46,30 @@ jQuery(function($) {
 			pause_stopwatch: function() {
 				clearInterval(interval_id);
 				interval_id = null;
+				total_time = (new Date()).getTime() - start_time;
+				start_time = null;
 			},
 			continue_stopwatch: function() {
+				/*
+				 * We really want to do an add (of the time elapsed) - which
+				 * is what we get when start_time is subtracted later.
+				 */
+				start_time = (new Date()).getTime() - total_time;
 				interval_id = setInterval(interval_func, 100);
 			},
 			reset_stopwatch: function() {
-				h = 0;
-				m = 0;
-				s = 0;
-				ms = 0;
-
 				field_hour.nodeValue = '00';
 				field_min.nodeValue = '00';
 				field_sec.nodeValue = '00';
+				start_time = null;
+				total_time = 0;
 			},
+
+			/*
+			 * Can only be called when stopwatch is paused.
+			 */
 			get_hours: function() {
-				return Math.round((
-					h +
-					m / 60 +
-					s / 3600
-				) * 100) / 100;
+				return Math.round((total_time / 3600000) * 100) / 100;
 			}
 		};
 	}();

@@ -7,7 +7,7 @@ PACKAGE = 'timingandestimationplugin'
 setup(name=PACKAGE,
       description='Plugin to make Trac support time estimation and tracking',
       keywords='trac plugin estimation timetracking',
-      version='0.8.8-1',
+      version='0.9.0',
       url='http://www.trac-hacks.org/wiki/TimingAndEstimationPlugin',
       license='http://www.opensource.org/licenses/mit-license.php',
       author='Russ Tyndall at Acceleration.net',
@@ -58,3 +58,7 @@ setup(name=PACKAGE,
 ## Greg Troxel
 ##
 ## Updated the post commit hooks to be inline with upstream trac
+
+## Tay Ray Chuan
+##
+## Added a stopwatch to the ticket pages
