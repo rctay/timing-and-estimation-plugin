@@ -16,7 +16,7 @@ class TicketStopwatch(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        if req.path_info.startswith('/ticket/'):
+        if req.path_info.startswith('/ticket/') or req.path_info.startswith('/newticket'):
             add_stylesheet(req, 'stopwatch/stopwatch.css')
             add_script(req, 'stopwatch/StopwatchDisplay.js')
             add_script(req, 'stopwatch/StopwatchControls.js')
